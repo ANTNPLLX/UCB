@@ -2,11 +2,6 @@
 
 A comprehensive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 
-![Français](https://img.shields.io/badge/lang-fr-blue)
-![English](https://img.shields.io/badge/lang-en-blue)
-![License](https://img.shields.io/badge/license-MIT-blue)
-
-
 ## Features
 
 - **USB Auto-Detection**: Automatically detects when a USB drive is plugged in
@@ -108,7 +103,7 @@ sudo ./start.sh
 
 1. **Startup**
    - LCD displays: "USB drive" / "Cleaner Box"
-   - Plays startup jingle
+   - Plays SNCF startup jingle
    - LED snake animation (2 cycles)
 
 2. **Waiting for USB**
@@ -185,7 +180,7 @@ sudo ./start.sh
 
 ## Audio Feedback
 
-- **Startup**: jingle (4 notes)
+- **Startup**: SNCF jingle (4 notes)
 - **USB Detected**: Warning beeps (3 short)
 - **Clean Result**: Success jingle (ascending notes)
 - **Threat Result**: Failure jingle (descending notes)
