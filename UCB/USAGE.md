@@ -3,7 +3,7 @@
 ## Quick Start
 
 ```bash
-cd /home/antoine/raspberry/BNU/UCB
+cd <path_to_downloaded_files>/UCB
 sudo ./start.sh
 ```
 
@@ -11,11 +11,11 @@ sudo ./start.sh
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                    STARTUP SEQUENCE                      │
+│                    STARTUP SEQUENCE                     │
 ├─────────────────────────────────────────────────────────┤
 │ LCD:  "USB drive"      / "Cleaner Box"                  │
 │ LEDs: Snake animation (Green→Orange→Red→Orange) x2      │
-│ Sound: SNCF startup jingle                              │
+│ Sound: startup jingle                                   │
 └─────────────────────────────────────────────────────────┘
                           ↓
 ┌─────────────────────────────────────────────────────────┐
@@ -39,7 +39,7 @@ sudo ./start.sh
 ├─────────────────────────────────────────────────────────┤
 │ LCD:  "Full analysis?" / "NO           YES"             │
 │                                                         │
-│ [LEFT button = NO] ────────┐  [RIGHT button = YES]     │
+│ [LEFT button = NO] ────────┐  [RIGHT button = YES]      │
 │         Skip               │         ↓                  │
 └────────────────────────────┼─────────────────────────────┘
                              │         ↓
@@ -75,9 +75,9 @@ sudo ./start.sh
 ├─────────────────────────────────────────────────────────┤
 │ LCD:  "Format USB?"    / "NO           YES"             │
 │                                                         │
-│ [LEFT button = NO] ────────┐  [RIGHT button = YES]     │
+│ [LEFT button = NO] ────────┐  [RIGHT button = YES]      │
 │         Skip               │         ↓                  │
-└────────────────────────────┼─────────────────────────────┘
+└────────────────────────────┼────────────────────────────┘
                              │         ↓
                              │  ┌──────────────────────┐
                              │  │ CONFIRM FORMAT       │
