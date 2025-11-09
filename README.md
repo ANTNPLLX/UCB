@@ -2,6 +2,9 @@
 
 A comprehensive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 
+![Français](https://img.shields.io/badge/lang-fr-blue)
+![English](https://img.shields.io/badge/lang-en-blue)
+
 ## Features
 
 - **USB Auto-Detection**: Automatically detects when a USB drive is plugged in
