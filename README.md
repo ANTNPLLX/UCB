@@ -108,7 +108,7 @@ sudo ./start.sh
 
 1. **Startup**
    - LCD displays: "USB drive" / "Cleaner Box"
-   - Plays SNCF startup jingle
+   - Plays startup jingle
    - LED snake animation (2 cycles)
 
 2. **Waiting for USB**
@@ -185,7 +185,7 @@ sudo ./start.sh
 
 ## Audio Feedback
 
-- **Startup**: SNCF jingle (4 notes)
+- **Startup**: jingle (4 notes)
 - **USB Detected**: Warning beeps (3 short)
 - **Clean Result**: Success jingle (ascending notes)
 - **Threat Result**: Failure jingle (descending notes)
