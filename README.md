@@ -4,6 +4,8 @@ A comprehensive USB security scanning and cleaning system for Raspberry Pi with 
 
 ![Français](https://img.shields.io/badge/lang-fr-blue)
 ![English](https://img.shields.io/badge/lang-en-blue)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Last Commit](https://img.shields.io/github/last-commit/username/repository)
 
 ## Features
 
