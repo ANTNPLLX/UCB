@@ -44,15 +44,17 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 
 ### Core Components
 
-| Qty | Component | Description | Notes |
-|-----|-----------|-------------|-------|
-| 1 | Raspberry Pi 3 | Main microcontroller | Or Pi Zero 2 W for better performance |
-| 1 | 16x2 I2C LCD Display | Character display, I2C interface | I2C address: 0x27 |
-| 3 | 5mm LEDs | Status indicators | 1x Green, 1x Orange, 1x Red |
-| 3 | 220Ω Resistors | LED current limiting | 1/4W or 1/8W |
-| 2 | Tactile Push Buttons | User input (YES/NO) | 6mm x 6mm momentary switches |
-| 2 | 10kΩ Resistors | Button pull-up resistors | Optional if using internal pull-ups |
-| 1 | Passive Buzzer | Audio feedback | 5V, 12mm diameter |
+| Qty | Component | Description | Notes | Avg Price |
+|-----|-----------|-------------|-------|-----------|
+| 1 | Raspberry Pi 3 | Main microcontroller | Or Pi Zero 2 W for better performance | $35.00 |
+| 1 | 16x2 I2C LCD Display | Character display, I2C interface | I2C address: 0x27 | $8.00 |
+| 3 | 5mm LEDs | Status indicators | 1x Green, 1x Orange, 1x Red | $0.30 |
+| 3 | 220Ω Resistors | LED current limiting | 1/4W or 1/8W | $0.15 |
+| 2 | Tactile Push Buttons | User input (YES/NO) | 6mm x 6mm momentary switches | $0.50 |
+| 2 | 10kΩ Resistors | Button pull-up resistors | Optional if using internal pull-ups | $0.10 |
+| 1 | Passive Buzzer | Audio feedback | 5V, 12mm diameter | $1.50 |
+
+**Core Components Subtotal: $45.55**
 
 
 
@@ -60,20 +62,24 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 ### Power Supply Components
 
 #### For 9V Battery Configuration:
-| Qty | Component | Description | Notes |
-|-----|-----------|-------------|-------|
-| 1 | 9V Battery Connector | Battery snap connector | With leads |
-| 1 | 9V Battery | Power source | Alkaline or rechargeable NiMH |
-| 1 | 5V Voltage Regulator | Step-down converter | LM7805 or DC-DC buck converter (more efficient) |
-| 2 | Capacitors | Input/output filtering | 10µF and 100nF for LM7805 |
-| 1 | Power Switch | On/Off control | SPST toggle or slide switch |
+| Qty | Component | Description | Notes | Avg Price |
+|-----|-----------|-------------|-------|-----------|
+| 1 | 9V Battery Connector | Battery snap connector | With leads | $0.50 |
+| 1 | 9V Battery | Power source | Alkaline or rechargeable NiMH | $3.00 |
+| 1 | 5V Voltage Regulator | Step-down converter | LM7805 or DC-DC buck converter (more efficient) | $2.50 |
+| 2 | Capacitors | Input/output filtering | 10µF and 100nF for LM7805 | $0.20 |
+| 1 | Power Switch | On/Off control | SPST toggle or slide switch | $0.75 |
+
+**9V Battery Configuration Subtotal: $6.95**
 
 #### For USB Powered Configuration:
-| Qty | Component | Description | Notes |
-|-----|-----------|-------------|-------|
-| 1 | USB Connector | Power input | Micro USB or Mini USB |
-| 1 | USB Power Cable | 5V power supply | 5V/2A wall adapter recommended |
-| 1 | Power Switch | On/Off control (optional) | SPST toggle or slide switch |
+| Qty | Component | Description | Notes | Avg Price |
+|-----|-----------|-------------|-------|-----------|
+| 1 | USB Connector | Power input | Micro USB or Mini USB | $0.50 |
+| 1 | USB Power Cable | 5V power supply | 5V/2A wall adapter recommended | $5.00 |
+| 1 | Power Switch | On/Off control (optional) | SPST toggle or slide switch | $0.75 |
+
+**USB Configuration Subtotal: $6.25**
 
 ### GPIO Pin Assignments
 
@@ -91,14 +97,38 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 
 ### Enclosure & Mounting
 
-| Qty | Component | Description | Notes |
-|-----|-----------|-------------|-------|
-| 1 | Project Box | Enclosure | Recommended: 150x100x50mm |
-| 1 | Acrylic/Plexiglass | LCD window | Cut to size, 80x36mm |
-| 4 | M2.5 Screws | Pi mounting | 10mm length |
-| 4 | M2.5 Standoffs | Pi standoffs | 10mm height |
-| 1 | Prototype PCB or Breadboard | Component mounting | Optional, for permanent build |
-| - | Jumper Wires | Connections | Male-to-female, various lengths |
+| Qty | Component | Description | Notes | Avg Price |
+|-----|-----------|-------------|-------|-----------|
+| 1 | Project Box | Enclosure | Recommended: 150x100x50mm | $8.00 |
+| 1 | Acrylic/Plexiglass | LCD window | Cut to size, 80x36mm | $2.00 |
+| 4 | M2.5 Screws | Pi mounting | 10mm length | $0.20 |
+| 4 | M2.5 Standoffs | Pi standoffs | 10mm height | $0.40 |
+| 1 | Prototype PCB or Breadboard | Component mounting | Optional, for permanent build | $3.00 |
+| 1 | Jumper Wires Set | Connections | Male-to-female, various lengths | $5.00 |
+
+**Enclosure & Mounting Subtotal: $18.60**
+
+---
+
+## Total Cost Summary
+
+### 9V Battery Powered Configuration:
+- Core Components: **$45.55**
+- Power Supply (9V): **$6.95**
+- Enclosure & Mounting: **$18.60**
+
+**Total: ~$71.10** (excluding tools)
+
+### USB Powered Configuration:
+- Core Components: **$45.55**
+- Power Supply (USB): **$6.25**
+- Enclosure & Mounting: **$18.60**
+
+**Total: ~$70.40** (excluding tools)
+
+> *Prices are approximate averages in USD and may vary by supplier, location, and time. Bulk purchases or existing component inventory can reduce costs significantly.*
+
+---
 
 ### Tools Required
 
