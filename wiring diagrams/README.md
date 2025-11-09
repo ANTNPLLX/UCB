@@ -46,16 +46,16 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 
 | Qty | Component | Description | Notes |
 |-----|-----------|-------------|-------|
-| 1 | Raspberry Pi Zero W | Main microcontroller | Or Pi Zero 2 W for better performance |
+| 1 | Raspberry Pi 3 | Main microcontroller | Or Pi Zero 2 W for better performance |
 | 1 | 16x2 I2C LCD Display | Character display, I2C interface | I2C address: 0x27 |
 | 3 | 5mm LEDs | Status indicators | 1x Green, 1x Orange, 1x Red |
 | 3 | 220Ω Resistors | LED current limiting | 1/4W or 1/8W |
 | 2 | Tactile Push Buttons | User input (YES/NO) | 6mm x 6mm momentary switches |
 | 2 | 10kΩ Resistors | Button pull-up resistors | Optional if using internal pull-ups |
 | 1 | Passive Buzzer | Audio feedback | 5V, 12mm diameter |
-| 1 | NPN Transistor | Buzzer driver | 2N2222 or equivalent |
-| 1 | 1kΩ Resistor | Transistor base resistor | For buzzer control |
-| 1 | Diode | Flyback protection | 1N4148 or 1N4001 |
+
+
+
 
 ### Power Supply Components
 
@@ -116,7 +116,7 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 ### General Guidelines
 
 1. **Test Components First**: Verify all components work individually before final assembly
-2. **Check Polarity**: LEDs, buzzer, and capacitors are polarized - observe polarity!
+2. **Check Polarity**: LEDs and buzzer are polarized - observe polarity!
 3. **Secure Connections**: Use solder for permanent builds, ensure no shorts
 4. **Cable Management**: Keep wires organized and away from moving parts
 5. **Test Incrementally**: Test after each major component is added
@@ -125,13 +125,11 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 
 #### 9V Battery Configuration:
 - Use a DC-DC buck converter instead of LM7805 for better efficiency (longer battery life)
-- Add a low battery indicator LED if desired
 - Consider rechargeable 9V NiMH batteries for cost savings
 - Ensure voltage regulator can handle 1A continuous current
 
 #### USB Configuration:
 - Use a quality USB power adapter (5V/2A minimum)
-- Add a power LED indicator near USB connector
 - Consider adding a USB power bank for portability
 - Ensure USB cable is rated for at least 2A
 
@@ -140,15 +138,14 @@ This configuration uses a USB power input (5V). Ideal for desktop/lab use with c
 The LCD uses I2C communication:
 - **SDA** (GPIO2/Pin 3) - Data line
 - **SCL** (GPIO3/Pin 5) - Clock line
-- **VCC** - 5V power
+- **VCC** - (GPIO4/Pin 7) - Controls LCD power via MOSFET/transistor
 - **GND** - Ground
-- **Power Control** (GPIO4/Pin 7) - Controls LCD power via MOSFET/transistor
 
 ### LED Wiring
 
 Each LED requires a current-limiting resistor:
-- LED Anode (+) → GPIO pin (through transistor/MOSFET if needed)
-- LED Cathode (-) → 220Ω resistor → GND
+- LED Anode (+) → 470Ω resistor → GPIO pin
+- LED Cathode (-) → GND
 
 ### Button Wiring
 
@@ -156,15 +153,6 @@ Buttons use internal pull-up resistors:
 - One terminal → GPIO pin
 - Other terminal → GND
 - Press button = GPIO goes LOW
-
-### Buzzer Circuit
-
-The buzzer requires a transistor driver:
-- GPIO26 → 1kΩ resistor → NPN base
-- Buzzer (+) → 5V
-- Buzzer (-) → NPN collector
-- NPN emitter → GND
-- Diode across buzzer (cathode to +5V) for flyback protection
 
 ---
 
@@ -195,27 +183,6 @@ The buzzer requires a transistor driver:
 
 ---
 
-## Troubleshooting
-
-### Power Issues
-
-| Problem | Possible Cause | Solution |
-|---------|---------------|----------|
-| Pi won't boot | Insufficient current | Use higher-rated power supply (2A) |
-| Random reboots | Voltage drop | Check connections, use thicker wires |
-| Battery drains fast | Inefficient regulator | Use DC-DC buck converter |
-
-### Component Issues
-
-| Problem | Possible Cause | Solution |
-|---------|---------------|----------|
-| LED won't light | Wrong polarity | Swap LED connections |
-| Buzzer silent | No transistor | Add NPN transistor driver |
-| LCD blank | No power/wrong I2C | Check GPIO4, verify I2C address |
-| Buttons don't respond | Wrong pull-up | Enable internal pull-ups in code |
-
----
-
 ## Design Files
 
 This directory contains:
@@ -227,21 +194,6 @@ This directory contains:
 
 **Note**: `.fzz` files can be opened and edited with [Fritzing](https://fritzing.org/)
 
----
-
-## Recommended Suppliers
-
-### Electronics Components
-- [Adafruit](https://www.adafruit.com/)
-- [SparkFun](https://www.sparkfun.com/)
-- [Pimoroni](https://shop.pimoroni.com/)
-- [DigiKey](https://www.digikey.com/)
-- [Mouser](https://www.mouser.com/)
-
-### Raspberry Pi
-- [Raspberry Pi Official](https://www.raspberrypi.com/)
-- [CanaKit](https://www.canakit.com/)
-- [Adafruit](https://www.adafruit.com/)
 
 ---
 
