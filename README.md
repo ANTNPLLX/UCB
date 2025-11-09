@@ -1,233 +1,254 @@
 # USB Cleaner Box
 
-A comprehensive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
+![Status](https://img.shields.io/badge/status-active-success.svg)
+![Platform](https://img.shields.io/badge/platform-Raspberry%20Pi-red.svg)
+![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
+![License](https://img.shields.io/badge/license-Open%20Source-green.svg)
+
+An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 
 ## Features
 
-- **USB Auto-Detection**: Automatically detects when a USB drive is plugged in
-- **Dynamic Worker System**: Extensible plugin architecture for custom operations
-- **Built-in Workers**:
-  - Malware scanning with ClamAV
-  - Executable file detection (Windows PE, Linux ELF, scripts)
-  - Secure USB formatting (FAT32)
-- **Interactive Interface**:
-  - 16x2 LCD display for status and questions
-  - Left/Right button controls for YES/NO responses
-  - RGB LED indicators (Green/Orange/Red)
-  - Audio feedback with buzzer
-- **Extensibility**: Easy to add custom workers without modifying core code
+- 🔍 **Malware Scanning** - ClamAV virus detection
+- 🔒 **Executable Detection** - Find suspicious files
+- 💾 **Secure Formatting** - Clean USB drives safely
+- 🔌 **Plug & Play** - Auto-detects USB devices
+- 🎛️ **Interactive Interface** - LCD + Buttons + LEDs + Sound
+- 🧩 **Extensible** - Add custom workers without modifying code
+- 📊 **Logging** - All operations logged for review
 
-## Hardware Requirements
+## Quick Start
 
-- Raspberry Pi (tested on Raspberry Pi 3/4)
-- 16x2 LCD display (I2C interface at address 0x27)
-- 3 LEDs (Green: GPIO16, Orange: GPIO20, Red: GPIO21)
-- 2 Push buttons (Left: GPIO23, Right: GPIO24)
-- Buzzer (GPIO26)
-
-## File Structure
-
-```
-UCB/
-├── usb_cleaner_box.py       # Main application script
-├── worker_manager.py        # Worker discovery and management
-├── lcd_helper.py            # LCD display controller
-├── led_control.py           # LED management
-├── sound_helper.py          # Sound/buzzer controller
-├── button_input.py          # Button input handler
-├── usb_detection.py         # USB device detection
-├── start.sh                 # Launcher script
-├── workers/                 # Worker scripts directory
-│   ├── analyze_malware.sh   # Malware scanner (order: 10)
-│   ├── analyze_executables.sh  # Executable detector (order: 20)
-│   ├── format_usb.sh        # USB formatter (order: 30)
-│   └── TEMPLATE_worker.sh   # Template for new workers
-├── README.md                # This file
-├── USAGE.md                 # Usage guide
-└── WORKER_GUIDE.md          # Worker development guide
-```
-
-## Worker System
-
-The application uses a **dynamic worker system** for extensibility:
-
-- Workers are shell scripts in the `workers/` directory
-- Each worker is presented as a YES/NO question on the LCD
-- Workers are auto-discovered and executed based on metadata
-- Easy to add custom workers without modifying core code
-
-See **[WORKER_GUIDE.md](WORKER_GUIDE.md)** for creating custom workers.
-
-### Built-in Workers
-
-1. **Full analysis?** (`analyze_malware.sh`) - ClamAV virus scanning
-2. **Executable chk?** (`analyze_executables.sh`) - Detects suspicious executables
-3. **Format USB?** (`format_usb.sh`) - Securely formats the USB drive
-
-## Installation
-
-1. Install required Python packages:
 ```bash
-sudo apt-get update
-sudo apt-get install python3-rpi.gpio python3-smbus
-```
-
-2. Install ClamAV (if not already installed):
-```bash
-sudo apt-get install clamav clamav-daemon
-sudo freshclam  # Update virus definitions
-```
-
-3. Ensure all scripts are executable:
-```bash
-chmod +x UCB/*.sh
-chmod +x UCB/*.py
-chmod +x UCB/workers/*.sh
-```
-
-## Usage
-
-Run the main application:
-```bash
+# 1. Clone or download
+git clone <repository-url> UCB
 cd UCB
+
+# 2. Install dependencies
+sudo apt-get update
+sudo apt-get install -y python3-rpi.gpio python3-smbus clamav
+
+# 3. Enable I2C
+sudo raspi-config
+# Interface Options → I2C → Enable
+
+# 4. Make executable
+chmod +x *.sh workers/*.sh
+
+# 5. Run
 sudo python3 usb_cleaner_box.py
 ```
 
-Or use the convenient launcher:
+## How It Works
+
+1. **Insert USB** - Device auto-detects
+2. **Answer Questions** - Use LEFT (NO) / RIGHT (YES) buttons
+3. **Review Results** - LED colors show status:
+   - 🟢 Green = Safe/Clean
+   - 🟠 Orange = Warning/Processing
+   - 🔴 Red = Threat/Error
+4. **Remove USB** - When prompted "Bye bye!"
+
+## Hardware Requirements
+
+| Component | Specification |
+|-----------|--------------|
+| **Microcontroller** | Raspberry Pi 3/4 or Zero 2 W |
+| **Display** | 16x2 I2C LCD (address 0x27) |
+| **LEDs** | 3x 5mm (Green, Orange, Red) |
+| **Buttons** | 2x Tactile push buttons |
+| **Buzzer** | Passive piezo buzzer (5V) |
+| **Power** | 9V battery or USB 5V/2A |
+
+**Total Cost**: ~$110-117 (see [Hardware Wiring Guide](Documents/HARDWARE_WIRING.md) for detailed BOM with pricing)
+
+## Documentation
+
+📚 **Complete documentation available in `Documents/` folder:**
+
+| Document | Description |
+|----------|-------------|
+| **[Installation Guide](Documents/INSTALLATION.md)** | Step-by-step setup instructions, dependencies, systemd service configuration |
+| **[Usage Guide](Documents/USAGE.md)** | How to use the device with ASCII flow diagrams, button controls, and workflows |
+| **[Worker Development](Documents/WORKER_GUIDE.md)** | Create custom workers with examples, templates, and best practices |
+| **[Hardware Guide](Documents/HARDWARE.md)** | Component specifications, testing procedures, and hardware troubleshooting |
+| **[Hardware Wiring](Documents/HARDWARE_WIRING.md)** | Complete wiring diagrams (9V battery & USB powered) with BOM and prices |
+| **[FAQ](Documents/FAQ.md)** | 50+ common questions, troubleshooting tips, and detailed answers |
+
+## Worker System
+
+The USB Cleaner Box uses a **dynamic worker system** for extensibility:
+
+- **Workers** are shell scripts in the `workers/` directory
+- Each worker = one YES/NO question on the LCD
+- Auto-discovered on startup (no code changes needed)
+- Executed based on user choices
+- Results analyzed and displayed automatically
+
+### Built-in Workers
+
+| Order | Question | Description |
+|-------|----------|-------------|
+| 10 | "Full analysis?" | ClamAV malware scanning |
+| 20 | "Executable chk?" | Detect suspicious executables |
+| 30 | "Format USB?" | Secure USB formatting (FAT32) |
+
+### Create Custom Workers
+
 ```bash
-cd UCB
-sudo ./start.sh
+# 1. Copy template
+cp workers/TEMPLATE_worker.sh workers/my_worker.sh
+
+# 2. Edit metadata (max 16 chars for question!)
+# WORKER_QUESTION=My question?
+# WORKER_ORDER=25
+
+# 3. Implement logic (receives device name as $1)
+
+# 4. Make executable
+chmod +x workers/my_worker.sh
+
+# Done! Auto-discovered on next run
 ```
 
-## Operation Flow
+See [Worker Development Guide](Documents/WORKER_GUIDE.md) for details and examples.
 
-1. **Startup**
-   - LCD displays: "USB drive" / "Cleaner Box"
-   - Plays SNCF startup jingle
-   - LED snake animation (2 cycles)
+## Project Structure
 
-2. **Waiting for USB**
-   - LCD displays: "Insert USB" / "drive..."
-   - LEDs off
-   - Waits for USB device to be plugged in
+```
+UCB/
+├── usb_cleaner_box.py       # Main application
+├── worker_manager.py        # Worker discovery engine
+├── lcd_helper.py            # LCD controller
+├── led_control.py           # LED management
+├── sound_helper.py          # Buzzer/audio
+├── button_input.py          # Button handling
+├── usb_detection.py         # USB auto-detection
+├── start.sh                 # Launcher script
+├── workers/                 # Worker scripts
+│   ├── analyze_malware.sh
+│   ├── analyze_executables.sh
+│   ├── format_usb.sh
+│   └── TEMPLATE_worker.sh   # Template for new workers
+├── Documents/               # Complete documentation
+│   ├── INSTALLATION.md
+│   ├── USAGE.md
+│   ├── WORKER_GUIDE.md
+│   ├── HARDWARE.md
+│   ├── HARDWARE_WIRING.md
+│   ├── FAQ.md
+│   └── WORKER_TEMPLATE.sh
+└── README.md                # This file
+```
 
-3. **USB Detected**
-   - LCD displays: "USB detected" / "[size]"
-   - Plays warning beep
-   - Proceeds to questions
+## GPIO Pin Assignments
 
-4. **Worker Questions**
-   For each discovered worker (in order):
-   - LCD displays worker question (max 16 chars)
-   - Line 2: "NO           YES"
-   - LEFT button = NO (skip worker)
-   - RIGHT button = YES (run worker)
+| Component | GPIO (BCM) | Physical Pin |
+|-----------|------------|--------------|
+| Green LED | GPIO16 | Pin 36 |
+| Orange LED | GPIO20 | Pin 38 |
+| Red LED | GPIO21 | Pin 40 |
+| Left Button | GPIO23 | Pin 16 |
+| Right Button | GPIO24 | Pin 18 |
+| Buzzer | GPIO26 | Pin 37 |
+| LCD Power | GPIO4 | Pin 7 |
+| LCD SDA | GPIO2 | Pin 3 |
+| LCD SCL | GPIO3 | Pin 5 |
 
-   Example flow:
-   - "Full analysis?" → YES → Runs malware scan
-   - "Executable chk?" → NO → Skips
-   - "Format USB?" → YES → Runs formatting
+## Requirements
 
-5. **Worker Execution**
-   - LCD: "Processing..." / "Please wait"
-   - LED: Orange (processing)
-   - Worker script runs with device name as parameter
+### Software
+- Raspberry Pi OS (Raspbian)
+- Python 3.7+
+- RPi.GPIO library
+- smbus library (I2C)
+- ClamAV (for malware scanning)
 
-6. **Worker Results**
-   Based on worker output:
+### Hardware
+- See [Hardware Guide](Documents/HARDWARE.md) or [Hardware Wiring](Documents/HARDWARE_WIRING.md)
 
-   - **THREAT** (keywords: infected, malware, threat):
-     - LCD: "THREAT" / "DETECTED!"
-     - LED: Red blinking (3 seconds)
-     - Sound: Failure jingle
+## Auto-Start on Boot
 
-   - **WARNING** (keywords: suspicious, warning):
-     - LCD: "WARNING" / "Check results"
-     - LED: Orange blinking (3 seconds)
-     - Sound: Warning beeps
+Install as systemd service:
 
-   - **SUCCESS** (keywords: clean, safe, or exit 0):
-     - LCD: "Completed" / "Success!"
-     - LED: Green blinking (3 seconds)
-     - Sound: Success jingle
+```bash
+# Edit service file paths
+nano usb-cleaner-box.service
 
-   - **ERROR** (non-zero exit):
-     - LCD: "ERROR" / "Worker failed"
-     - LED: Red blinking (3 seconds)
-     - Sound: Failure jingle
+# Install
+sudo cp usb-cleaner-box.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable usb-cleaner-box.service
+sudo systemctl start usb-cleaner-box.service
 
-7. **Run Another?**
-   - LCD: "Run another?" / "NO           YES"
-   - If YES: Returns to step 4 (ask all workers again)
-   - If NO: Proceeds to goodbye
-
-8. **Goodbye**
-   - LCD: "Bye bye!" / "Remove USB"
-   - LED: Snake animation
-   - Returns to "Waiting for USB" state
-
-## Button Controls
-
-- **LEFT Button (GPIO23)**: NO / Cancel
-- **RIGHT Button (GPIO24)**: YES / Confirm
-
-## LED Indicators
-
-- **Green LED (GPIO16)**: Clean/Safe status
-- **Orange LED (GPIO20)**: Warning/Processing
-- **Red LED (GPIO21)**: Threat/Danger
-- **Snake Animation**: Startup sequence (Green → Orange → Red → Orange)
-
-## Audio Feedback
-
-- **Startup**: SNCF jingle (4 notes)
-- **USB Detected**: Warning beeps (3 short)
-- **Clean Result**: Success jingle (ascending notes)
-- **Threat Result**: Failure jingle (descending notes)
-
-## Safety Features
-
-- Cannot format system disk (sda is blocked)
-- Double confirmation required for formatting
-- Comprehensive error handling
-- Device unmounting after operations
-- GPIO cleanup on exit
-
-## Troubleshooting
-
-### LCD not displaying
-- Check I2C address: `sudo i2cdetect -y 1`
-- Verify I2C is enabled: `sudo raspi-config` → Interface Options → I2C
-
-### USB not detected
-- Check USB device appears: `lsblk`
-- Verify permissions: Run with `sudo`
-
-### LEDs not working
-- Check GPIO pin connections
-- Verify pin numbers in `led_control.py`
-
-### Sound not playing
-- Check buzzer connection to GPIO26
-- Test buzzer separately
-
-### Buttons not responding
-- Check button connections (GPIO23, GPIO24)
-- Verify pull-up resistors are configured
+# Check status
+sudo systemctl status usb-cleaner-box.service
+```
 
 ## Logs
 
-Activity is logged to: `/var/log/usb_malware_scan.log`
+All operations are logged:
 
-View logs:
 ```bash
+# View logs
 sudo tail -f /var/log/usb_malware_scan.log
 ```
 
-## Credits
+## Troubleshooting
 
-USB Cleaner Box - Interactive USB security scanning system for Raspberry Pi.
+### Quick Fixes
+
+| Problem | Solution |
+|---------|----------|
+| LCD blank | Check I2C: `sudo i2cdetect -y 1` |
+| USB not detected | Run with sudo |
+| LEDs not working | Check polarity and resistors |
+| No sound | Verify passive buzzer + transistor driver |
+| ClamAV errors | Update: `sudo freshclam` |
+
+See [FAQ](Documents/FAQ.md) for detailed troubleshooting.
+
+## Contributing
+
+Contributions welcome!
+
+- **New workers** - Add functionality
+- **Bug fixes** - Improve stability
+- **Documentation** - Help others
+- **Hardware designs** - Alternative builds
+- **Translations** - Make it global
+
+## Safety & Security
+
+⚠️ **Important**:
+- Always run with sudo (required for device access)
+- Formatting **permanently deletes all data**
+- Red LED = Do not use that USB drive!
+- Keep virus definitions updated
+- Review logs for detailed information
 
 ## License
 
-Open source project.
+Open source hardware and software. See individual files for specific licenses.
+
+## Support
+
+- 📖 Read the [Documentation](Documents/)
+- 🐛 Check [FAQ](Documents/FAQ.md)
+- 📝 Review [Logs](#logs)
+- 💬 Open an issue (if applicable)
+
+## Acknowledgments
+
+- **ClamAV** - Open-source antivirus engine
+- **Raspberry Pi Foundation** - Incredible platform
+- **Community** - Contributors and testers
+
+---
+
+**Quick Links:**
+- [Installation](Documents/INSTALLATION.md) | [Usage Guide](Documents/USAGE.md) | [Worker Development](Documents/WORKER_GUIDE.md) | [Hardware](Documents/HARDWARE.md) | [Hardware Wiring](Documents/HARDWARE_WIRING.md) | [FAQ](Documents/FAQ.md)
+
+---
+
+Made with ❤️ for security and privacy
