@@ -253,4 +253,3 @@ Open source hardware and software. See individual files for specific licenses.
 
 ---
 
-Made with ❤️ for security and privacy
