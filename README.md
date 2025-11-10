@@ -8,6 +8,7 @@
 An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 
 ![Logo du projet](images/Sample_artwork_3.png)
+See [AI generated artworks](images/README.md) for more design examples.
 
 ## Features
 
