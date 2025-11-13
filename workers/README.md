@@ -216,5 +216,3 @@ You can insert custom workers between these by using intermediate order numbers 
 - **Main README:** [../README.md](../README.md)
 
 ---
-
-**Made with ❤️ for USB security**
