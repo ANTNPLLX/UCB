@@ -52,7 +52,17 @@ sudo freshclam
 sudo systemctl start clamav-freshclam
 ```
 
-### 4. Enable I2C Interface
+### 4. Install LibreOffice (Optional)
+
+For file vitrification worker (converts Office documents to PDF):
+
+```bash
+sudo apt-get install -y libreoffice-writer libreoffice-calc libreoffice-core fonts-liberation fonts-dejavu-core
+```
+
+**Note:** The vitrification worker will auto-install LibreOffice and fonts on first run if not present. Manual installation is recommended to avoid delays during USB processing.
+
+### 5. Enable I2C Interface
 
 The LCD uses I2C communication:
 
@@ -69,7 +79,7 @@ Reboot if prompted:
 sudo reboot
 ```
 
-### 5. Verify I2C LCD
+### 6. Verify I2C LCD
 
 Check that the LCD is detected:
 
@@ -79,7 +89,7 @@ sudo i2cdetect -y 1
 
 You should see `27` in the output grid (I2C address 0x27).
 
-### 6. Download/Clone the Application
+### 7. Download/Clone the Application
 
 ```bash
 cd ~
@@ -93,7 +103,7 @@ Or if you have the files:
 cd /path/to/UCB
 ```
 
-### 7. Make Scripts Executable
+### 8. Make Scripts Executable
 
 ```bash
 chmod +x *.sh
@@ -101,7 +111,7 @@ chmod +x *.py
 chmod +x workers/*.sh
 ```
 
-### 8. Test the Application
+### 9. Test the Application
 
 Run a quick test:
 
@@ -180,6 +190,17 @@ cd /home/pi/UCB && sudo python3 usb_cleaner_box.py &
 ### Customizing Workers
 
 Workers are automatically discovered from the `workers/` directory. See [Worker Development Guide](WORKER_GUIDE.md) for creating custom workers.
+
+To enable or disable workers, edit the `WORKER_ENABLED` line in each worker file:
+
+```bash
+# Disable a worker
+nano workers/format_usb.sh
+# Change: WORKER_ENABLED=false
+
+# Restart service
+sudo systemctl restart usb-cleaner-box.service
+```
 
 ### LCD I2C Address
 

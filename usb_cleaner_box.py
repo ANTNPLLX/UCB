@@ -51,7 +51,7 @@ class USBCleanerBox:
 
         # Turn on LCD and display welcome message
         self.lcd.init()
-        self.lcd.display("USB drive", "Cleaner Box")
+        self.lcd.display("    BOITIER     ", " NETTOYAGE USB  ")
 
         # Play startup jingle
         self.sound.play_sncf_jingle()
@@ -64,7 +64,7 @@ class USBCleanerBox:
     def wait_for_usb(self):
         """Wait for USB device to be plugged in"""
         print("Waiting for USB device...")
-        self.lcd.display("Insert USB", "drive...")
+        self.lcd.display("  Inserer une   ", "    clé USB...  ")
         self.leds.all_off()
 
         # Wait for USB device
@@ -79,8 +79,8 @@ class USBCleanerBox:
             print(f"Device info: {info}")
 
             # Display detection message
-            self.lcd.display("USB detected", f"{info['size']}")
-            self.sound.play_warning()
+            self.lcd.display("USB detectee", f"{info['size']}")
+            self.sound.play_beep()
             time.sleep(2)
 
             return True
@@ -95,7 +95,7 @@ class USBCleanerBox:
         question = question[:16]
 
         # Display question
-        self.lcd.display(question, "NO           YES")
+        self.lcd.display(question, "NON         OUI")
 
         # Orange LED for question
         self.leds.orange_on()
@@ -124,7 +124,7 @@ class USBCleanerBox:
         print(f"Description: {worker.description}")
         print(f"{'='*50}\n")
 
-        self.lcd.display("Processing...", "Please wait")
+        self.lcd.display("  Traitement   ", "  En cours...  ")
         self.leds.orange_on()
 
         # Run the worker
@@ -150,17 +150,26 @@ class USBCleanerBox:
         # Check output for keywords
         output = result['stdout'].lower()
 
-        # Check for malware/threats
+        # Check for malware/threats first (highest priority)
         if 'infected' in output or 'malware' in output or 'threat' in output:
             return 'threat'
 
-        # Check for suspicious findings
-        if 'suspicious' in output or 'warning' in output or 'found' in output:
-            if 'no' not in output.split('found')[0].split()[-5:]:  # Not "no ... found"
-                return 'warning'
+        # Check for clean/success (before checking warnings)
+        if 'clean:' in output or 'safe' in output:
+            return 'clean'
 
-        # Check for clean/success
-        if 'clean' in output or 'safe' in output or 'no' in output:
+        # Check for "no ... found" pattern (clean result)
+        if 'found' in output and 'no' in output:
+            # Check if "no" appears before "found" in the text
+            if output.find('no') < output.find('found'):
+                return 'clean'
+
+        # Check for suspicious findings
+        if 'suspicious' in output or 'warning:' in output:
+            return 'warning'
+
+        # Check for general "no" in output (clean)
+        if 'no' in output and 'warning' not in output:
             return 'clean'
 
         # Default to uncertain
@@ -202,15 +211,16 @@ class USBCleanerBox:
 
     def process_usb(self):
         """Process USB with available workers"""
-        workers = self.worker_manager.get_workers()
+        # Get only enabled workers
+        workers = self.worker_manager.get_workers(include_disabled=False)
 
         if not workers:
-            print("No workers available!")
+            print("No enabled workers available!")
             self.lcd.display("No workers", "available")
             time.sleep(2)
             return
 
-        print(f"\nAvailable workers: {len(workers)}")
+        print(f"\nEnabled workers: {len(workers)}")
         for worker in workers:
             print(f"  - {worker}")
 
@@ -232,7 +242,7 @@ class USBCleanerBox:
     def goodbye_sequence(self):
         """Show goodbye message and cleanup"""
         print("\n=== Goodbye ===")
-        self.lcd.display("Bye bye!", "Remove USB")
+        self.lcd.display("   Au revoir    ", "Retirer cle USB")
         self.leds.snake_blocking(duration=2.0, speed=0.2)
         time.sleep(2)
 
@@ -254,16 +264,24 @@ class USBCleanerBox:
 
                 # Ask if user wants to run another worker
                 while True:
-                    if self.ask_question("Run another?"):
+                    if self.ask_question("Recommencer?"):
                         # Ask which workers to run again
                         self.process_usb()
                     else:
                         break
 
+                # Update device list before goodbye (to track current state)
+                self.usb.update_device_list()
+
                 # Goodbye sequence
                 self.goodbye_sequence()
 
-                # Update device list for next iteration
+                # Wait for USB to be removed before continuing
+                print("Waiting for USB to be removed...")
+                while self.current_device in self.usb.get_usb_devices():
+                    time.sleep(0.5)
+
+                # Update device list after removal
                 self.usb.update_device_list()
 
                 print("\n=== Ready for next USB device ===\n")
@@ -276,7 +294,7 @@ class USBCleanerBox:
                 import traceback
                 traceback.print_exc()
                 try:
-                    self.lcd.display("System error", "Restarting...")
+                    self.lcd.display("Erreur System", "Redemarrage...")
                     time.sleep(2)
                 except:
                     pass
@@ -327,7 +345,7 @@ class USBCleanerBox:
             import traceback
             traceback.print_exc()
             try:
-                self.lcd.display("Fatal error", "Shutting down")
+                self.lcd.display("Erreur Fatale", "Arret systeme")
                 time.sleep(2)
             except:
                 # LCD not available, just continue to cleanup

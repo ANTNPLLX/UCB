@@ -7,9 +7,6 @@
 
 An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 
-![Logo du projet](images/Sample_artwork_3.png)
-See [AI generated artworks](images/README.md) for more design examples.
-
 ## Features
 
 - 🔍 **Malware Scanning** - ClamAV virus detection
@@ -85,16 +82,18 @@ The USB Cleaner Box uses a **dynamic worker system** for extensibility:
 - **Workers** are shell scripts in the `workers/` directory
 - Each worker = one YES/NO question on the LCD
 - Auto-discovered on startup (no code changes needed)
+- Can be enabled/disabled individually
 - Executed based on user choices
 - Results analyzed and displayed automatically
 
 ### Built-in Workers
 
-| Order | Question | Description |
-|-------|----------|-------------|
-| 10 | "Full analysis?" | ClamAV malware scanning |
-| 20 | "Executable chk?" | Detect suspicious executables |
-| 30 | "Format USB?" | Secure USB formatting (FAT32) |
+| Order | Question | Description | Requirements |
+|-------|----------|-------------|--------------|
+| 10 | "Full analysis?" | ClamAV malware scanning | ClamAV |
+| 20 | "Executable chk?" | Detect suspicious executables | - |
+| 25 | "Vitrification?" | Convert Office docs to PDF, neutralize other files | LibreOffice |
+| 30 | "Format USB?" | Secure USB formatting (FAT32) | - |
 
 ### Create Custom Workers
 
@@ -105,6 +104,7 @@ cp workers/TEMPLATE_worker.sh workers/my_worker.sh
 # 2. Edit metadata (max 16 chars for question!)
 # WORKER_QUESTION=My question?
 # WORKER_ORDER=25
+# WORKER_ENABLED=true
 
 # 3. Implement logic (receives device name as $1)
 
@@ -113,6 +113,23 @@ chmod +x workers/my_worker.sh
 
 # Done! Auto-discovered on next run
 ```
+
+### Enable/Disable Workers
+
+To disable a worker without deleting it:
+
+```bash
+# Edit the worker file
+nano workers/format_usb.sh
+
+# Change WORKER_ENABLED to false
+# WORKER_ENABLED=false
+
+# Restart service
+sudo systemctl restart usb-cleaner-box.service
+```
+
+Disabled workers are skipped - their questions won't appear on the LCD.
 
 See [Worker Development Guide](Documents/WORKER_GUIDE.md) for details and examples.
 
@@ -165,7 +182,8 @@ UCB/
 - Python 3.7+
 - RPi.GPIO library
 - smbus library (I2C)
-- ClamAV (for malware scanning)
+- ClamAV (for malware scanning worker)
+- LibreOffice (for vitrification worker - auto-installs if needed)
 
 ### Hardware
 - See [Hardware Guide](Documents/HARDWARE.md) or [Hardware Wiring](Documents/HARDWARE_WIRING.md)
@@ -254,3 +272,4 @@ Open source hardware and software. See individual files for specific licenses.
 
 ---
 
+Made with ❤️ for security and privacy

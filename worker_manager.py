@@ -10,15 +10,17 @@ import subprocess
 class Worker:
     """Represents a worker script"""
 
-    def __init__(self, script_path, question, order, description):
+    def __init__(self, script_path, question, order, description, enabled=True):
         self.script_path = script_path
         self.question = question  # 16 chars max for LCD
         self.order = order
         self.description = description
+        self.enabled = enabled
         self.name = os.path.basename(script_path)
 
     def __repr__(self):
-        return f"Worker({self.name}, order={self.order}, question='{self.question}')"
+        status = "enabled" if self.enabled else "disabled"
+        return f"Worker({self.name}, order={self.order}, question='{self.question}', {status})"
 
     def run(self, device):
         """Execute the worker script with device parameter"""
@@ -64,7 +66,8 @@ class WorkerManager:
         metadata = {
             'question': None,
             'order': 999,  # Default high order number
-            'description': ''
+            'description': '',
+            'enabled': True  # Default enabled
         }
 
         try:
@@ -89,6 +92,12 @@ class WorkerManager:
                         match = re.search(r'WORKER_DESCRIPTION=(.+)', line)
                         if match:
                             metadata['description'] = match.group(1).strip()
+
+                    elif 'WORKER_ENABLED=' in line:
+                        match = re.search(r'WORKER_ENABLED=(true|false|yes|no|1|0)', line, re.IGNORECASE)
+                        if match:
+                            value = match.group(1).lower()
+                            metadata['enabled'] = value in ['true', 'yes', '1']
 
         except Exception as e:
             print(f"Warning: Could not parse metadata from {script_path}: {e}")
@@ -122,7 +131,8 @@ class WorkerManager:
                         script_path=script_path,
                         question=metadata['question'],
                         order=metadata['order'],
-                        description=metadata['description']
+                        description=metadata['description'],
+                        enabled=metadata['enabled']
                     )
                     self.workers.append(worker)
                     print(f"Discovered worker: {worker}")
@@ -134,9 +144,15 @@ class WorkerManager:
 
         print(f"Total workers discovered: {len(self.workers)}")
 
-    def get_workers(self):
-        """Get list of all workers sorted by order"""
-        return self.workers
+    def get_workers(self, include_disabled=False):
+        """Get list of all workers sorted by order
+
+        Args:
+            include_disabled: If False (default), only return enabled workers
+        """
+        if include_disabled:
+            return self.workers
+        return [w for w in self.workers if w.enabled]
 
     def get_worker_by_name(self, name):
         """Get a worker by its script name"""

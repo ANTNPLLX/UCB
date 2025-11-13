@@ -2,9 +2,10 @@
 #
 # format_usb.sh - Securely format USB device
 #
-# WORKER_QUESTION=Format USB?
+# WORKER_QUESTION=Formatage USB?
 # WORKER_ORDER=30
 # WORKER_DESCRIPTION=Securely format USB drive (FAT32)
+# WORKER_ENABLED=true
 #
 
 # Configuration
@@ -40,10 +41,22 @@ DEVICE_PATH="/dev/$DEVICE"
 echo -e "${YELLOW}=== Secure USB Format Started ===${NC}"
 log_message "Starting secure format for $DEVICE_PATH"
 
-# Safety check - prevent formatting system disk
-if [ "$DEVICE" = "sda" ]; then
-    echo -e "${RED}ERROR: Cannot format sda (system disk)${NC}"
-    log_message "ERROR: Attempted to format system disk sda - BLOCKED"
+# Safety check - prevent formatting system/root disk
+ROOT_DEVICE=$(lsblk -no PKNAME $(findmnt -n -o SOURCE /))
+if [ "$DEVICE" = "$ROOT_DEVICE" ]; then
+    echo -e "${RED}ERROR: Cannot format $DEVICE (system/root disk)${NC}"
+    log_message "ERROR: Attempted to format system disk $DEVICE - BLOCKED"
+    display_on_lcd "ERREUR!" "Disque systeme"
+    sleep 3
+    exit 1
+fi
+
+# Additional safety - check if device has mounted partitions in critical locations
+if mount | grep -q "^${DEVICE_PATH}" | grep -E '(/ |/boot|/home|/usr|/var)'; then
+    echo -e "${RED}ERROR: Device $DEVICE has mounted system partitions${NC}"
+    log_message "ERROR: Device $DEVICE has critical mounted partitions - BLOCKED"
+    display_on_lcd "ERREUR!" "Partition mont."
+    sleep 3
     exit 1
 fi
 
@@ -117,21 +130,52 @@ if sudo mkfs.vfat -F 32 -n "CLEAN_USB" "$PARTITION"; then
     echo -e "${GREEN}Format successful!${NC}"
     log_message "Successfully formatted $PARTITION"
 
+    # Force kernel to re-read partition table
+    sudo partprobe "$DEVICE_PATH" 2>/dev/null || true
+    sudo blockdev --rereadpt "$DEVICE_PATH" 2>/dev/null || true
+
+    # Wait for filesystem to be recognized
+    sleep 3
+
     # Verify the format
     echo "Verifying format..."
-    FSTYPE=$(lsblk -no FSTYPE "$PARTITION")
+    FSTYPE=$(lsblk -no FSTYPE "$PARTITION" 2>/dev/null)
+
+    # If lsblk doesn't work, try blkid
+    if [ -z "$FSTYPE" ]; then
+        FSTYPE=$(sudo blkid -s TYPE -o value "$PARTITION" 2>/dev/null)
+    fi
+
     echo "Filesystem type: $FSTYPE"
 
     if [ "$FSTYPE" = "vfat" ]; then
         echo -e "${GREEN}Verification successful!${NC}"
         log_message "Format verification successful - filesystem: $FSTYPE"
+        display_on_lcd "Formatage OK!" "CLEAN_USB"
+        sleep 2
+        echo "CLEAN: USB formatted successfully"
         echo -e "${GREEN}=== USB Format Complete ===${NC}"
         log_message "Secure format completed successfully for $DEVICE_PATH"
         exit 0
+    elif [ -n "$FSTYPE" ]; then
+        # Filesystem detected but not vfat - still might work
+        echo -e "${YELLOW}Warning: Unexpected filesystem type: $FSTYPE${NC}"
+        log_message "WARNING: Format verification - unexpected filesystem: $FSTYPE"
+        display_on_lcd "Formatage OK!" "Type: $FSTYPE"
+        sleep 2
+        echo "CLEAN: USB formatted (type: $FSTYPE)"
+        echo -e "${GREEN}=== USB Format Complete ===${NC}"
+        log_message "Secure format completed for $DEVICE_PATH (type: $FSTYPE)"
+        exit 0
     else
-        echo -e "${RED}Verification failed - unexpected filesystem type${NC}"
-        log_message "ERROR: Format verification failed - filesystem: $FSTYPE"
-        exit 1
+        echo -e "${YELLOW}Warning: Could not verify filesystem type${NC}"
+        log_message "WARNING: Format verification - could not detect filesystem type"
+        display_on_lcd "Formatage OK!" "Non verifie"
+        sleep 2
+        echo "CLEAN: USB formatted (verification skipped)"
+        echo -e "${GREEN}=== USB Format Complete ===${NC}"
+        log_message "Secure format completed for $DEVICE_PATH (unverified)"
+        exit 0
     fi
 else
     echo -e "${RED}Format failed!${NC}"

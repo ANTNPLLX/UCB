@@ -108,6 +108,28 @@ Run this weekly for best protection.
 
 Yes! The worker system is extensible. Create a shell script in `workers/` directory with proper metadata. See [Worker Guide](WORKER_GUIDE.md).
 
+### How do I enable or disable workers?
+
+Edit the worker file and change the `WORKER_ENABLED` line:
+
+```bash
+# Disable a worker
+nano workers/format_usb.sh
+# Change: WORKER_ENABLED=false
+
+# Restart service
+sudo systemctl restart usb-cleaner-box.service
+```
+
+Disabled workers are skipped - their questions won't appear on the LCD.
+
+### Can I disable a worker temporarily?
+
+Yes! Set `WORKER_ENABLED=false` in the worker file. You can re-enable it later by changing it back to `true`. This is useful for:
+- Testing new workers without interference
+- Temporarily disabling problematic workers
+- Running only specific workers you need
+
 ### Where are scan results stored?
 
 Log file: `/var/log/usb_malware_scan.log`
@@ -129,6 +151,7 @@ Technically yes, but you won't see prompts or results. The LCD is essential for 
 
 Depends on USB size and worker:
 - **Executable check**: 30-120 seconds
+- **Vitrification**: 2-10 minutes (depends on document count)
 - **Small USB (< 1GB)**: 2-5 minutes
 - **Medium USB (1-8GB)**: 5-10 minutes
 - **Large USB (> 8GB)**: 10-30 minutes
@@ -148,9 +171,14 @@ Depends on USB size and worker:
 - Linux: ELF binaries
 - Scripts: .sh, .ps1, .vbs, .js, .wsf, .hta
 
+**Vitrification worker**:
+- Converts: .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .odp, .rtf → PDF
+- Neutralizes: All other files get .hold extension (except safe formats)
+- Preserves: .pdf, .txt, .md, .jpg, .jpeg, .png, .gif, .bmp, .mp3, .mp4, .avi, .mkv
+
 ### Does it clean infected files?
 
-No, it only detects them. The recommended action is to format the USB drive if malware is detected.
+No, the malware scanner only detects them. The recommended action is to format the USB drive if malware is detected. However, the **vitrification worker** can neutralize threats by converting documents to clean PDFs and adding .hold extensions to other files.
 
 ### Can it recover deleted files?
 
@@ -162,6 +190,28 @@ The worker has a 10-minute timeout. For very large USB drives:
 - Split the scan across multiple runs
 - Increase timeout in `worker_manager.py`
 - Use a faster Raspberry Pi model
+
+### What is file vitrification?
+
+Vitrification converts potentially dangerous files into safe formats:
+1. **Office documents** → Clean PDF files (removes macros, scripts)
+2. **Other files** → Add .hold extension (prevents execution)
+
+This makes USB content safe to use while preserving data.
+
+### Does vitrification delete my files?
+
+- **Office docs**: Original files are deleted after successful PDF conversion
+- **Other files**: Renamed with .hold extension (can be renamed back manually if safe)
+- **Safe formats**: Left untouched (.pdf, .jpg, .txt, etc.)
+
+### Do I need LibreOffice for vitrification?
+
+Yes, LibreOffice is required for document-to-PDF conversion. The worker will auto-install it on first run if not present. For faster processing, install manually:
+
+```bash
+sudo apt-get install -y libreoffice --no-install-recommends
+```
 
 ### Can I scan multiple USBs in a row?
 

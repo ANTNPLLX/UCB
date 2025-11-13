@@ -5,6 +5,7 @@
 # WORKER_QUESTION=Executable chk?
 # WORKER_ORDER=20
 # WORKER_DESCRIPTION=Check for suspicious executable files
+# WORKER_ENABLED=true
 #
 
 # Configuration
@@ -139,11 +140,13 @@ log_message "Executable analysis - PE: $PE_COUNT, ELF: $ELF_COUNT, Scripts: $SCR
 # Display results
 if [ "$TOTAL_EXECUTABLES" -eq 0 ]; then
     echo -e "${GREEN}No executable files found${NC}"
-    display_on_lcd "No executables" "Safe!"
-    log_message "Result: No executable files found"
+    echo "CLEAN: No executable files detected"
+    display_on_lcd "Pas de fichier" "executable"
+    log_message "Result: CLEAN - No executable files found"
     sleep 3
 else
     echo -e "${RED}WARNING: $TOTAL_EXECUTABLES executable file(s) found!${NC}"
+    echo "WARNING: $TOTAL_EXECUTABLES suspicious executables detected"
     display_on_lcd "SUSPICIOUS!" "$TOTAL_EXECUTABLES executables"
     log_message "Result: SUSPICIOUS - $TOTAL_EXECUTABLES executable files found"
     sleep 3

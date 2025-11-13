@@ -5,6 +5,7 @@
 # WORKER_QUESTION=Your question?   <-- UNCOMMENT THIS LINE TO ENABLE
 # WORKER_ORDER=100
 # WORKER_DESCRIPTION=Description of what this worker does
+# WORKER_ENABLED=false
 #
 # Instructions:
 # 1. Copy this template to a new file (e.g., my_worker.sh)
@@ -12,6 +13,7 @@
 #    - WORKER_QUESTION: Max 16 characters, displayed on LCD
 #    - WORKER_ORDER: Number to control execution order (lower = earlier)
 #    - WORKER_DESCRIPTION: Brief description of the worker
+#    - WORKER_ENABLED: true (enabled) or false (disabled)
 # 3. Implement your logic in the main section below
 # 4. Make the script executable: chmod +x workers/my_worker.sh
 # 5. The worker will be automatically discovered on next run

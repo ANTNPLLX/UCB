@@ -87,13 +87,21 @@ class SoundPlayer:
             self.stop()
 
     def play_warning(self):
-        """Play warning beep"""
+        """Play warning beep (3 beeps)"""
         try:
             for _ in range(3):
                 self.play_note(440, 0.1)  # A note
                 time.sleep(0.1)
                 self.stop()
                 time.sleep(0.1)
+        finally:
+            self.stop()
+
+    def play_beep(self):
+        """Play single beep"""
+        try:
+            self.play_note(440, 0.15)  # A note
+            time.sleep(0.15)
         finally:
             self.stop()
 
