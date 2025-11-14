@@ -6,18 +6,22 @@
 ![License](https://img.shields.io/badge/license-Open%20Source-green.svg)
 
 An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
-
+Project created with the help of several LLM tools.
 ![sample_artwork](images/Sample_artwork_3.png)
 
 ## Features
 
-- 🔍 **Malware Scanning** - ClamAV virus detection
-- 🔒 **Executable Detection** - Find suspicious files
-- 💾 **Secure Formatting** - Clean USB drives safely
 - 🔌 **Plug & Play** - Auto-detects USB devices
-- 🎛️ **Interactive Interface** - LCD + Buttons + LEDs + Sound
+- 🎛️ **Interactive Interface** - Select Operation (workers) to perform on the USB Drive. 
+- 📄 **Logging** - All operations logged
 - 🧩 **Extensible** - Add custom workers without modifying code
-- 📊 **Logging** - All operations logged for review
+  
+### Built-in Workers : 
+- 🔍 **Malware Scanning** - ClamAV virus detection (disabled because clamAV use too much memory for Raspberry PI 3)
+- ⚡ **Executables Check** - search scripts, PE or other executable files, even if hidden.
+- ❄️ **Vitrification** - Convert Office and PDF document to PDF, neutralize other files
+- 🔥 **Secure Formatting** - Format USB drive in FAT32
+
 
 ## Quick Start
 
@@ -55,7 +59,7 @@ sudo python3 usb_cleaner_box.py
 
 | Component | Specification |
 |-----------|--------------|
-| **Microcontroller** | Raspberry Pi 3/4 or Zero 2 W |
+| **Computer** | Raspberry Pi 3/4 or Zero 2 W |
 | **Display** | 16x2 I2C LCD (address 0x27) |
 | **LEDs** | 3x 5mm (Green, Orange, Red) |
 | **Buttons** | 2x Tactile push buttons |
@@ -71,7 +75,7 @@ sudo python3 usb_cleaner_box.py
 | Document | Description |
 |----------|-------------|
 | **[Installation Guide](Documents/INSTALLATION.md)** | Step-by-step setup instructions, dependencies, systemd service configuration |
-| **[Usage Guide](Documents/USAGE.md)** | How to use the device with ASCII flow diagrams, button controls, and workflows |
+| **[User Guide](Documents/USAGE.md)** | How to use the device with ASCII flow diagrams, button controls, and workflows |
 | **[Worker Development](Documents/WORKER_GUIDE.md)** | Create custom workers with examples, templates, and best practices |
 | **[Hardware Guide](Documents/HARDWARE.md)** | Component specifications, testing procedures, and hardware troubleshooting |
 | **[Hardware Wiring](Documents/HARDWARE_WIRING.md)** | Complete wiring diagrams (9V battery & USB powered) with BOM and prices |
