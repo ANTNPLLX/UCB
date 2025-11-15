@@ -52,7 +52,7 @@ if ! command -v libreoffice &> /dev/null; then
 
     if [ $? -ne 0 ]; then
         echo -e "${RED}Failed to install LibreOffice${NC}"
-        display_on_lcd "Install failed" "Skipping..."
+        display_on_lcd "Echec install." "Abandon..."
         log_message "ERROR: Failed to install LibreOffice"
         exit 1
     fi
@@ -73,37 +73,109 @@ sudo mkdir -p "$MOUNT_POINT"
 
 # Mount the device
 echo "Mounting /dev/${DEVICE}1 to $MOUNT_POINT"
-display_on_lcd "Mounting..." "USB drive"
+display_on_lcd "Montage..." "Cle USB"
 
 if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
     log_message "Device mounted successfully at $MOUNT_POINT"
+
+    # Create quarantine folder for potentially dangerous files
+    QUARANTINE_FOLDER="${MOUNT_POINT}/FICHIERS_POTENTIELLEMENT_DANGEREUX"
+    sudo mkdir -p "$QUARANTINE_FOLDER"
+    log_message "Created quarantine folder: $QUARANTINE_FOLDER"
 
     # Arrays to track results
     CONVERTED_COUNT=0
     HOLD_COUNT=0
     ERROR_COUNT=0
 
-    # Office document extensions to convert to PDF
+    # Office document extensions to convert to PDF (excluding PDF itself)
     OFFICE_EXTENSIONS=("doc" "docx" "xls" "xlsx" "ppt" "pptx" "odt" "ods" "odp" "rtf")
 
-    # Extensions to skip (already safe or system files)
-    SKIP_EXTENSIONS=("pdf" "txt" "md" "jpg" "jpeg" "png" "gif" "bmp" "mp3" "mp4" "avi" "mkv")
+    # Extensions to skip (safe media files that don't need vitrification)
+    SKIP_EXTENSIONS=("txt" "md" "jpg" "jpeg" "png" "gif" "bmp" "mp3" "mp4" "avi" "mkv")
 
-    echo -e "${YELLOW}Step 1: Converting Office documents to PDF${NC}"
-    display_on_lcd "Converting" "Office docs..."
+    echo -e "${YELLOW}Step 1A: Vitrifying existing PDF files (removes malicious content)${NC}"
+    display_on_lcd "Vitrification" "PDFs..."
 
-    # Find and convert Office documents
+    # Process PDF files FIRST to avoid double-vitrification
+    while IFS= read -r file; do
+        if [ -f "$file" ]; then
+            # Skip files in quarantine folder
+            if [[ "$file" == *"/FICHIERS_POTENTIELLEMENT_DANGEREUX/"* ]]; then
+                continue
+            fi
+
+            filename=$(basename "$file")
+
+            # Skip already vitrified PDFs
+            if [[ "$filename" == *"_vitrified_.pdf" ]]; then
+                continue
+            fi
+
+            dirname=$(dirname "$file")
+            filename_no_ext="${filename%.*}"
+
+            echo "Vitrifying PDF: $filename"
+            display_on_lcd "Vitrif..." "${filename:0:16}"
+
+            # LibreOffice creates filename_no_ext.pdf by default
+            TEMP_PDF_OUTPUT="${dirname}/${filename_no_ext}.pdf"
+            # Final vitrified filename with original extension preserved
+            FINAL_PDF_OUTPUT="${dirname}/${filename}_vitrified_.pdf"
+
+            # Convert PDF to clean PDF using LibreOffice
+            CONVERT_OUTPUT=$(sudo libreoffice --headless --convert-to pdf --outdir "$dirname" "$file" 2>&1)
+
+            # Check if PDF was actually created
+            if [ -f "$TEMP_PDF_OUTPUT" ] && [ -s "$TEMP_PDF_OUTPUT" ]; then
+                # Rename to vitrified format: original.pdf_vitrified_.pdf
+                sudo mv "$TEMP_PDF_OUTPUT" "$FINAL_PDF_OUTPUT"
+
+                echo -e "${GREEN}✓ Vitrified PDF: $filename -> ${filename}_vitrified_.pdf${NC}"
+                log_message "Vitrified PDF: $file -> ${filename}_vitrified_.pdf"
+
+                # Move original file to quarantine folder (preserve directory structure)
+                RELATIVE_PATH="${file#$MOUNT_POINT/}"
+                QUARANTINE_PATH="${QUARANTINE_FOLDER}/${RELATIVE_PATH}"
+                QUARANTINE_DIR=$(dirname "$QUARANTINE_PATH")
+
+                sudo mkdir -p "$QUARANTINE_DIR"
+                sudo mv "$file" "$QUARANTINE_PATH"
+                log_message "Moved original PDF to quarantine: $QUARANTINE_PATH"
+
+                CONVERTED_COUNT=$((CONVERTED_COUNT + 1))
+            else
+                echo -e "${RED}✗ Failed to vitrify PDF: $filename${NC}"
+                echo "  LibreOffice output: $CONVERT_OUTPUT"
+                log_message "ERROR: Failed to vitrify PDF $file - PDF not created"
+                log_message "LibreOffice error: $CONVERT_OUTPUT"
+                ERROR_COUNT=$((ERROR_COUNT + 1))
+            fi
+
+            sleep 0.2
+        fi
+    done < <(sudo find "$MOUNT_POINT" -type f -iname "*.pdf" 2>/dev/null)
+
+    echo -e "${YELLOW}Step 1B: Converting Office documents to clean PDF${NC}"
+    display_on_lcd "Conversion" "documents..."
+
+    # Find and convert Office documents (NOT PDF - already done above)
     for ext in "${OFFICE_EXTENSIONS[@]}"; do
         echo "Searching for *.${ext} files..."
 
         while IFS= read -r file; do
             if [ -f "$file" ]; then
+                # Skip files in quarantine folder
+                if [[ "$file" == *"/FICHIERS_POTENTIELLEMENT_DANGEREUX/"* ]]; then
+                    continue
+                fi
+
                 filename=$(basename "$file")
                 dirname=$(dirname "$file")
                 filename_no_ext="${filename%.*}"
 
                 echo "Converting: $filename"
-                display_on_lcd "Converting..." "${filename:0:16}"
+                display_on_lcd "Conversion..." "${filename:0:16}"
 
                 # LibreOffice creates filename_no_ext.pdf by default
                 TEMP_PDF_OUTPUT="${dirname}/${filename_no_ext}.pdf"
@@ -122,9 +194,14 @@ if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
                     echo -e "${GREEN}✓ Converted: $filename -> ${filename}_vitrified_.pdf${NC}"
                     log_message "Converted: $file -> ${filename}_vitrified_.pdf"
 
-                    # Remove original file after successful conversion
-                    sudo rm "$file"
-                    log_message "Removed original: $file"
+                    # Move original file to quarantine folder (preserve directory structure)
+                    RELATIVE_PATH="${file#$MOUNT_POINT/}"
+                    QUARANTINE_PATH="${QUARANTINE_FOLDER}/${RELATIVE_PATH}"
+                    QUARANTINE_DIR=$(dirname "$QUARANTINE_PATH")
+
+                    sudo mkdir -p "$QUARANTINE_DIR"
+                    sudo mv "$file" "$QUARANTINE_PATH"
+                    log_message "Moved original to quarantine: $QUARANTINE_PATH"
 
                     CONVERTED_COUNT=$((CONVERTED_COUNT + 1))
                 else
@@ -141,14 +218,24 @@ if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
     done
 
     echo -e "${YELLOW}Step 2: Neutralizing other files with .hold extension${NC}"
-    display_on_lcd "Neutralizing" "other files..."
+    display_on_lcd "Neutralisation" "Autres fichiers"
 
-    # Find all remaining files (excluding PDFs and safe extensions)
+    # Find all remaining files (excluding vitrified PDFs and safe extensions)
     while IFS= read -r file; do
         if [ -f "$file" ]; then
+            # Skip files in quarantine folder
+            if [[ "$file" == *"/FICHIERS_POTENTIELLEMENT_DANGEREUX/"* ]]; then
+                continue
+            fi
+
             filename=$(basename "$file")
             extension="${filename##*.}"
             extension_lower=$(echo "$extension" | tr '[:upper:]' '[:lower:]')
+
+            # Skip vitrified PDFs (already clean)
+            if [[ "$filename" == *"_vitrified_.pdf" ]]; then
+                continue
+            fi
 
             # Check if extension should be skipped
             skip=false
@@ -161,7 +248,7 @@ if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
 
             if [ "$skip" = false ]; then
                 echo "Neutralizing: $filename"
-                display_on_lcd "Neutralizing..." "${filename:0:16}"
+                display_on_lcd "Neutralis..." "${filename:0:16}"
 
                 # Add .hold extension
                 if sudo mv "$file" "${file}.hold" 2>/dev/null; then
@@ -190,14 +277,14 @@ if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
     # Display results on LCD
     if [ "$ERROR_COUNT" -gt 0 ]; then
         echo -e "${RED}WARNING: Some files could not be processed${NC}"
-        display_on_lcd "WARNING" "$ERROR_COUNT errors"
+        display_on_lcd "ALERTE" "$ERROR_COUNT erreurs"
         sleep 2
     fi
 
-    display_on_lcd "Vitrification" "Complete!"
+    display_on_lcd "Vitrification" "Terminee!"
     sleep 2
 
-    display_on_lcd "Converted: $CONVERTED_COUNT" "Neutral: $HOLD_COUNT"
+    display_on_lcd "Converti: $CONVERTED_COUNT" "Neutral: $HOLD_COUNT"
     sleep 3
 
     if [ $((CONVERTED_COUNT + HOLD_COUNT)) -gt 0 ]; then
@@ -214,7 +301,7 @@ if sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
 
 else
     echo -e "${RED}Failed to mount /dev/${DEVICE}1${NC}"
-    display_on_lcd "Mount failed" "Cannot vitrify"
+    display_on_lcd "Echec montage" "Vitrif. imposs"
     log_message "ERROR: Failed to mount device"
     sleep 3
     exit 1

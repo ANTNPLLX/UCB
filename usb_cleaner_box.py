@@ -9,6 +9,7 @@ with a dynamic worker system for extensibility.
 import sys
 import os
 import time
+import threading
 import RPi.GPIO as GPIO
 
 # Add current directory to path
@@ -20,6 +21,7 @@ from sound_helper import SoundPlayer
 from button_input import ButtonInput
 from usb_detection import USBDetector
 from worker_manager import WorkerManager
+from log_helper import log_message, log_session_banner, log_worker_choice, log_separator
 
 # Get script directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -53,11 +55,17 @@ class USBCleanerBox:
         self.lcd.init()
         self.lcd.display("    BOITIER     ", " NETTOYAGE USB  ")
 
-        # Play startup jingle
-        self.sound.play_sncf_jingle()
+        # Run jingle and LED animation simultaneously using threads
+        jingle_thread = threading.Thread(target=self.sound.play_sncf_jingle)
+        led_thread = threading.Thread(target=self.leds.snake_blocking, kwargs={'duration': 2.4, 'speed': 0.2})
 
-        # Run LED snake animation (2 times, 4 seconds total)
-        self.leds.snake_blocking(duration=4.0, speed=0.2)
+        # Start both threads at the same time
+        jingle_thread.start()
+        led_thread.start()
+
+        # Wait for both to complete
+        jingle_thread.join()
+        led_thread.join()
 
         print("Startup complete!")
 
@@ -74,9 +82,12 @@ class USBCleanerBox:
             print(f"USB device detected: {device}")
             self.current_device = device
 
-            # Get device info
+            # Get comprehensive device info
             info = self.usb.get_device_info(device)
             print(f"Device info: {info}")
+
+            # Log session banner with full device details
+            log_session_banner(info)
 
             # Display detection message
             self.lcd.display("USB detectee", f"{info['size']}")
@@ -183,30 +194,50 @@ class USBCleanerBox:
 
         if status == 'threat':
             # Threat detected - RED blinking
-            self.lcd.display("THREAT", "DETECTED!")
-            self.leds.blink_red(duration=3.0, speed=0.3)
-            self.sound.play_failed()
+            self.lcd.display("MENACE", "DETECTEE!")
+            # Run LED and sound simultaneously
+            led_thread = threading.Thread(target=self.leds.blink_red, kwargs={'duration': 3.0, 'speed': 0.3})
+            sound_thread = threading.Thread(target=self.sound.play_failed)
+            led_thread.start()
+            sound_thread.start()
+            led_thread.join()
+            sound_thread.join()
             time.sleep(2)
 
         elif status == 'warning':
             # Warning - ORANGE blinking
-            self.lcd.display("WARNING", "Check results")
-            self.leds.blink_orange(duration=3.0, speed=0.5)
-            self.sound.play_warning()
+            self.lcd.display("ALERTE", "Verif. result")
+            # Run LED and sound simultaneously
+            led_thread = threading.Thread(target=self.leds.blink_orange, kwargs={'duration': 3.0, 'speed': 0.5})
+            sound_thread = threading.Thread(target=self.sound.play_warning)
+            led_thread.start()
+            sound_thread.start()
+            led_thread.join()
+            sound_thread.join()
             time.sleep(2)
 
         elif status == 'error':
             # Error - RED blinking
-            self.lcd.display("ERROR", "Worker failed")
-            self.leds.blink_red(duration=3.0, speed=0.5)
-            self.sound.play_failed()
+            self.lcd.display("ERREUR", "Echec worker")
+            # Run LED and sound simultaneously
+            led_thread = threading.Thread(target=self.leds.blink_red, kwargs={'duration': 3.0, 'speed': 0.5})
+            sound_thread = threading.Thread(target=self.sound.play_failed)
+            led_thread.start()
+            sound_thread.start()
+            led_thread.join()
+            sound_thread.join()
             time.sleep(2)
 
         else:
             # Clean or uncertain - GREEN blinking
-            self.lcd.display("Completed", "Success!")
-            self.leds.blink_green(duration=3.0, speed=0.5)
-            self.sound.play_success()
+            self.lcd.display("Termine", "Succes!")
+            # Run LED and sound simultaneously
+            led_thread = threading.Thread(target=self.leds.blink_green, kwargs={'duration': 3.0, 'speed': 0.5})
+            sound_thread = threading.Thread(target=self.sound.play_success)
+            led_thread.start()
+            sound_thread.start()
+            led_thread.join()
+            sound_thread.join()
             time.sleep(2)
 
     def process_usb(self):
@@ -216,7 +247,7 @@ class USBCleanerBox:
 
         if not workers:
             print("No enabled workers available!")
-            self.lcd.display("No workers", "available")
+            self.lcd.display("Pas de workers", "disponibles")
             time.sleep(2)
             return
 
@@ -227,7 +258,12 @@ class USBCleanerBox:
         # Process each worker
         for worker in workers:
             # Ask if user wants to run this worker
-            if self.ask_question(worker.question):
+            answer = self.ask_question(worker.question)
+
+            # Log the user's choice
+            log_worker_choice(worker.name, answer)
+
+            if answer:
                 # Run the worker
                 result = self.run_worker(worker)
 

@@ -51,7 +51,7 @@ class SoundPlayer:
 
     def play_success(self):
         """Play success sound"""
-        tempo = 0.1
+        tempo = 0.05
         try:
             self.play_note(196, tempo)      # G (low)
             time.sleep(tempo)
@@ -69,7 +69,7 @@ class SoundPlayer:
 
     def play_failed(self):
         """Play failure sound"""
-        tempo = 0.2
+        tempo = 0.1
         try:
             self.play_note(392.00, tempo)      # G
             time.sleep(tempo)
@@ -88,12 +88,13 @@ class SoundPlayer:
 
     def play_warning(self):
         """Play warning beep (3 beeps)"""
+        tempo = 0.05
         try:
-            for _ in range(3):
-                self.play_note(440, 0.1)  # A note
-                time.sleep(0.1)
+            for _ in range(4):
+                self.play_note(220, tempo)  # A note
+                time.sleep(tempo)
                 self.stop()
-                time.sleep(0.1)
+                time.sleep(tempo)
         finally:
             self.stop()
 

@@ -52,21 +52,35 @@ This directory contains worker scripts that perform specific tasks on USB drives
 **Enabled:** Configurable (default: enabled)
 
 **What it does:**
-- **Step 1:** Converts Office documents to clean PDF files
+- **Creates quarantine folder:** `FICHIERS_POTENTIELLEMENT_DANGEREUX/`
+  - Stores all original files (not deleted!)
+  - Preserves directory structure
+
+- **Step 1A:** Vitrifies existing PDF files (removes malicious content)
+  - Processes all .pdf files FIRST
+  - Removes JavaScript, embedded files, forms, malicious objects
+  - Output: `document.pdf` → `document.pdf_vitrified_.pdf`
+  - Skips already vitrified PDFs (ending with `_vitrified_.pdf`)
+  - Moves original to quarantine folder
+
+- **Step 1B:** Converts Office documents to clean PDF files
   - Formats: .doc, .docx, .xls, .xlsx, .ppt, .pptx, .odt, .ods, .odp, .rtf
   - Output naming: `original.ext_vitrified_.pdf` (preserves original extension)
   - Removes macros and embedded scripts
-  - Deletes original after successful conversion
+  - Moves original to quarantine folder
 
 - **Step 2:** Neutralizes other files with `.hold` extension
   - Prevents execution by renaming (e.g., `malware.exe` → `malware.exe.hold`)
-  - Preserves safe formats: .pdf, .txt, .jpg, .png, .mp3, .mp4, etc.
+  - Preserves safe formats: .txt, .jpg, .png, .mp3, .mp4, etc.
 
 **Requirements:** LibreOffice (auto-installs if needed)
 
 **Output:**
 - 🟢 Green LED: Vitrification completed successfully
 - Displays conversion and neutralization counts
+- Original files preserved in quarantine folder
+
+**Important:** Original potentially dangerous files are NOT deleted - they are moved to the `FICHIERS_POTENTIELLEMENT_DANGEREUX` folder for review
 
 ---
 
@@ -94,7 +108,39 @@ This directory contains worker scripts that perform specific tasks on USB drives
 
 ---
 
-### 5. **TEMPLATE_worker.sh**
+### 5. **report_printer.sh** (Order: 35)
+**Question:** "Copie rapport?"
+**Purpose:** Creates a timestamped report file on the USB drive with current session logs
+**Enabled:** Configurable (default: enabled)
+
+**What it does:**
+- Mounts USB drive
+- Extracts all logs from the current session (after session banner)
+- Creates timestamped report file: `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
+  - Example: `2025-11-15_14-30_rapport_UCB.txt`
+  - Includes session banner with full device details
+  - All worker choices and execution logs
+  - Formatted report with headers and sections
+- Displays line count and file size
+- Unmounts drive after completion
+
+**Session Detection:**
+- Primary: Finds last "SESSION START" banner in logs
+- Extracts everything from that banner to end of file
+- Fallback: Last 30 lines if no session banner found
+
+**Note:** Each report has a unique filename to prevent overwriting previous reports
+
+**Requirements:** None
+
+**Output:**
+- 🟢 Green LED: Report created successfully
+- 🔴 Red LED: Report creation failed
+- Displays report statistics (line count)
+
+---
+
+### 6. **TEMPLATE_worker.sh**
 **Purpose:** Template for creating new custom workers
 **Enabled:** No (template only, not discovered)
 
@@ -189,9 +235,49 @@ All worker operations are logged to:
 /var/log/usb_malware_scan.log
 ```
 
-View logs:
+### Log Structure
+
+Each session starts with a **session banner** containing:
+- Timestamp
+- Device path (/dev/sdX)
+- Size, label, filesystem type
+- Vendor, model, serial number
+
+Example session banner:
+```
+================================================================================
+                                 SESSION START
+================================================================================
+Timestamp:   2025-11-15 14:30:15
+Device:      /dev/sda
+Size:        58.6G
+Label:       CLEAN_USB
+Filesystem:  vfat
+Vendor:      SanDisk
+Model:       Ultra_USB_3.0
+Serial:      4C530001234567890123
+================================================================================
+```
+
+### Worker Choice Logging
+
+Each worker prompt is logged:
+```
+[2025-11-15 14:30:20] --- "analyze_executables.sh": YES
+[2025-11-15 14:30:35] --- "file_vitrification.sh": NO
+[2025-11-15 14:30:40] --- "format_usb.sh": YES
+```
+
+### View Logs
+
+View live logs:
 ```bash
 sudo tail -f /var/log/usb_malware_scan.log
+```
+
+View last session:
+```bash
+sudo grep -A 999 "SESSION START" /var/log/usb_malware_scan.log | tail -100
 ```
 
 ---
@@ -204,8 +290,9 @@ Workers are executed in order based on `WORKER_ORDER`:
 2. **20** - Executable check (identify suspicious files)
 3. **25** - Vitrification (convert to safe formats)
 4. **30** - Format (nuclear option - wipes everything)
+5. **35** - Report printer (copy session logs to USB)
 
-You can insert custom workers between these by using intermediate order numbers (e.g., 15, 22, 28).
+You can insert custom workers between these by using intermediate order numbers (e.g., 15, 22, 28, 32).
 
 ---
 
@@ -216,3 +303,5 @@ You can insert custom workers between these by using intermediate order numbers 
 - **Main README:** [../README.md](../README.md)
 
 ---
+
+**Made with ❤️ for USB security**

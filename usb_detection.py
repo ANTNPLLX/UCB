@@ -141,20 +141,84 @@ class USBDetector:
             return False
 
     def get_device_info(self, device):
-        """Get device information (size, label, etc.)"""
+        """Get comprehensive device information"""
+        info = {
+            'device': device,
+            'size': 'Unknown',
+            'label': 'No label',
+            'fstype': 'Unknown',
+            'vendor': 'Unknown',
+            'model': 'Unknown',
+            'serial': 'Unknown'
+        }
+
         try:
+            # Get size from the main device
             result = subprocess.run(
-                ['lsblk', '-no', 'SIZE,LABEL', f'/dev/{device}'],
+                ['lsblk', '-no', 'SIZE', f'/dev/{device}'],
                 capture_output=True,
                 text=True,
                 check=True
             )
-            parts = result.stdout.strip().split(None, 1)
-            size = parts[0] if parts else 'Unknown'
-            label = parts[1] if len(parts) > 1 else 'No label'
-            return {'size': size, 'label': label}
-        except Exception:
-            return {'size': 'Unknown', 'label': 'Unknown'}
+            lines = result.stdout.strip().split('\n')
+            if lines:
+                info['size'] = lines[0].strip()
+        except Exception as e:
+            print(f"Error getting device size: {e}")
+
+        try:
+            # Get label and filesystem type from the first partition
+            result = subprocess.run(
+                ['lsblk', '-no', 'LABEL,FSTYPE', f'/dev/{device}1'],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            output = result.stdout.strip()
+            if output:
+                parts = output.split(None, 1)
+                if len(parts) >= 1:
+                    # First part could be label or fstype (if no label)
+                    # Check if it looks like a filesystem type
+                    if parts[0] in ['vfat', 'ntfs', 'exfat', 'ext4', 'ext3', 'ext2']:
+                        info['fstype'] = parts[0]
+                        info['label'] = 'No label'
+                    else:
+                        info['label'] = parts[0]
+                        if len(parts) >= 2:
+                            info['fstype'] = parts[1]
+                elif len(parts) >= 2:
+                    info['label'] = parts[0] if parts[0] else 'No label'
+                    info['fstype'] = parts[1]
+        except Exception as e:
+            print(f"Error getting device label/fstype: {e}")
+
+        try:
+            # Get vendor and model from udev
+            result = subprocess.run(
+                ['udevadm', 'info', '--query=property', f'/dev/{device}'],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            for line in result.stdout.split('\n'):
+                # ID_VENDOR_ID and ID_MODEL_ID are the actual names from USB
+                if line.startswith('ID_VENDOR_FROM_DATABASE='):
+                    info['vendor'] = line.split('=', 1)[1].strip()
+                elif line.startswith('ID_VENDOR=') and info['vendor'] == 'Unknown':
+                    # Fallback to ID_VENDOR if no database entry
+                    info['vendor'] = line.split('=', 1)[1].strip()
+                elif line.startswith('ID_MODEL_FROM_DATABASE='):
+                    info['model'] = line.split('=', 1)[1].strip()
+                elif line.startswith('ID_MODEL=') and info['model'] == 'Unknown':
+                    # Fallback to ID_MODEL if no database entry
+                    info['model'] = line.split('=', 1)[1].strip()
+                elif line.startswith('ID_SERIAL_SHORT='):
+                    info['serial'] = line.split('=', 1)[1].strip()
+        except Exception as e:
+            print(f"Error getting device vendor/model: {e}")
+
+        return info
 
     def update_device_list(self):
         """Update the current device list"""

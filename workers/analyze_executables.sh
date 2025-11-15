@@ -42,7 +42,7 @@ echo -e "${YELLOW}=== Executable File Analysis Started ===${NC}"
 log_message "Starting executable file analysis for /dev/$DEVICE"
 
 # Display analyzing message
-display_on_lcd "Analyzing..." "Executables"
+display_on_lcd "Analyse..." "Executables"
 
 # Check if the device is mounted
 if ! mountpoint -q "$MOUNT_POINT"; then
@@ -51,7 +51,7 @@ if ! mountpoint -q "$MOUNT_POINT"; then
     echo "Mounting /dev/${DEVICE}1 to $MOUNT_POINT"
     if ! sudo mount "/dev/${DEVICE}1" "$MOUNT_POINT" 2>/dev/null; then
         echo -e "${RED}Failed to mount /dev/${DEVICE}1${NC}"
-        display_on_lcd "Mount failed" "Cannot analyze"
+        display_on_lcd "Echec montage" "Analyse imposs."
         log_message "ERROR: Failed to mount device"
         sleep 3
         exit 1
@@ -71,7 +71,7 @@ TEMP_SCRIPT_FILES="/tmp/script_files_$$"
 
 # Search for Windows PE executables (.exe, .dll, .sys, .scr, etc.)
 echo "Searching for Windows PE executables..."
-display_on_lcd "Searching..." "Win executables"
+display_on_lcd "Recherche..." "Exec Windows"
 
 # Find by extension
 sudo find "$MOUNT_POINT" -type f \( \
@@ -88,7 +88,7 @@ sudo find "$MOUNT_POINT" -type f \( \
 
 # Also check for PE files by magic number (MZ header)
 echo "Checking file signatures..."
-display_on_lcd "Checking..." "File signatures"
+display_on_lcd "Verification..." "Signatures"
 
 # Find files with PE signature (starts with MZ)
 sudo find "$MOUNT_POINT" -type f -exec sh -c '
@@ -97,7 +97,7 @@ sudo find "$MOUNT_POINT" -type f -exec sh -c '
 
 # Search for Linux/Unix executables (ELF files)
 echo "Searching for Linux ELF executables..."
-display_on_lcd "Searching..." "Linux executables"
+display_on_lcd "Recherche..." "Exec Linux"
 
 # Find ELF files by magic number
 sudo find "$MOUNT_POINT" -type f -exec sh -c '
@@ -106,7 +106,7 @@ sudo find "$MOUNT_POINT" -type f -exec sh -c '
 
 # Search for script files that could be malicious
 echo "Searching for script files..."
-display_on_lcd "Searching..." "Scripts"
+display_on_lcd "Recherche..." "Scripts"
 
 sudo find "$MOUNT_POINT" -type f \( \
     -iname "*.sh" -o \
@@ -147,13 +147,13 @@ if [ "$TOTAL_EXECUTABLES" -eq 0 ]; then
 else
     echo -e "${RED}WARNING: $TOTAL_EXECUTABLES executable file(s) found!${NC}"
     echo "WARNING: $TOTAL_EXECUTABLES suspicious executables detected"
-    display_on_lcd "SUSPICIOUS!" "$TOTAL_EXECUTABLES executables"
+display_on_lcd "SUSPECT!" "$TOTAL_EXECUTABLES exec."
     log_message "Result: SUSPICIOUS - $TOTAL_EXECUTABLES executable files found"
     sleep 3
     
     # Display Windows PE files
     if [ "$PE_COUNT" -gt 0 ]; then
-        display_on_lcd "Windows EXE:" "$PE_COUNT files"
+        display_on_lcd "Windows EXE:" "$PE_COUNT fichiers"
         log_message "Windows PE files found:"
         sleep 2
         
@@ -179,7 +179,7 @@ else
     
     # Display Linux ELF files
     if [ "$ELF_COUNT" -gt 0 ]; then
-        display_on_lcd "Linux ELF:" "$ELF_COUNT files"
+        display_on_lcd "Linux ELF:" "$ELF_COUNT fichiers"
         log_message "Linux ELF files found:"
         sleep 2
         
@@ -205,7 +205,7 @@ else
     
     # Display Script files
     if [ "$SCRIPT_COUNT" -gt 0 ]; then
-        display_on_lcd "Scripts found:" "$SCRIPT_COUNT files"
+        display_on_lcd "Scripts:" "$SCRIPT_COUNT fichiers"
         log_message "Script files found:"
         sleep 2
         
@@ -230,7 +230,7 @@ else
     fi
     
     # Final warning
-    display_on_lcd "SUSPICIOUS USB" "Check files!"
+    display_on_lcd "USB SUSPECT" "Verifier!"
     sleep 3
 fi
 
