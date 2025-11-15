@@ -16,13 +16,13 @@ Pour chaque traitement disponible, l'écran affiche une question
 ---
 
 ### Explications des traitements
-##"Executable chk?"
+## "Executable chk?"
 Détecte les fichiers potentiellement dangereux (programmes Windows .exe, scripts, binaires Linux).
   - 🟢 **VERT** = "Pas de fichier / executable" - Aucun exécutable trouvé
   - 🟠 **ORANGE** = "SUSPECT! / X exec." - Fichiers executables détectés
   - 🔴 **ROUGE** = "Erreur" - le traitement ne s'est pas passé comme prévu
 
-##"Vitrification?"
+## "Vitrification?"
 Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros, JavaScript, objets malveillants). Les fichiers originaux sont déplacés dans le dossier "FICHIERS_POTENTIELLEMENT_DANGEREUX".
 **Formats traités :**
 - PDF (nettoyage)
@@ -34,14 +34,14 @@ Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros
 - Fichiers originaux : déplacés dans `FICHIERS_POTENTIELLEMENT_DANGEREUX/`
 - Autres fichiers : renommés avec extension `.hold`
 
-##"Formatage USB?"
+## "Formatage USB?"
 Efface TOUTES les données et formate la clé USB en FAT32 (nom "CLEAN_USB").
 **⚠️ ATTENTION : Cette opération EFFACE DÉFINITIVEMENT toutes les données !**
 **Résultats possibles :**
 - 🟢 **VERT** = "Formatage OK! / CLEAN_USB" - Formatage réussi
 - 🔴 **ROUGE** = "ERREUR! / Disque systeme" - Protection activée (disque système)
 
-##"Copie rapport?"
+## "Copie rapport?"
 Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours (analyses, détections, traitements).
 **Fichier créé :** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
 **Contenu du rapport :**
