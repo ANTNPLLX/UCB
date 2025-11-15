@@ -50,15 +50,15 @@ Crée un fichier rapport sur la clé USB avec tous les logs de la session en cou
 - Résultats des analyses
 - Fichiers détectés ou traités
 
-##"Recommencer?"
-Après tous les traitements, le boîtier demande :
+## "Recommencer?"
+Après tous les traitements, le boîtier propose de recommancer depuis le début :
 - **OUI** - Relance les questions pour la même clé USB
 - **NON** - Passe au message de fin
 
 ---
 
 
-###Étape 4 : Retirer la Clé
+### Étape 4 : Retirer la Clé
 - Lorsque l'écran affiche "Au revoir / Retirer cle USB"
 - Retirer la clé USB du boîtier
 - Le boîtier est prêt pour une nouvelle clé
