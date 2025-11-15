@@ -277,5 +277,3 @@ Open source hardware and software. See individual files for specific licenses.
 - [Installation](Documents/INSTALLATION.md) | [Usage Guide](Documents/USAGE.md) | [Worker Development](Documents/WORKER_GUIDE.md) | [Hardware](Documents/HARDWARE.md) | [Hardware Wiring](Documents/HARDWARE_WIRING.md) | [FAQ](Documents/FAQ.md)
 
 ---
-
-Made with ❤️ for security and privacy
