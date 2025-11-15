@@ -5,12 +5,14 @@
 ![Python](https://img.shields.io/badge/python-3.7+-blue.svg)
 ![License](https://img.shields.io/badge/license-Open%20Source-green.svg)
 
+**[User quick guide (EN)](Documents/user_quick_start_en.md)**
+
+**[User quick guide (FR)](Documents/user_quick_start_fr.md)**
+
 An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
 Project created with the help of several LLM tools.
-![sample_artwork](images/Sample_artwork_3.png)
 
-**[User quick guide (EN)](Documents/user_quick_start_en.md)**
-**[User quick guide (FR)](Documents/user_quick_start_fr.md)**
+![sample_artwork](images/Sample_artwork_3.png)
 
 
 ## Features
