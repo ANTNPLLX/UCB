@@ -1,4 +1,4 @@
-# Guide de Démarrage Rapide - Boîtier Nettoyage USB
+Boîtier Nettoyage USB - Guide utilisateur
 
 ## Étape 1 : Démarrage du boîtier
 1. **Brancher l'alimentation** - Connectez le câble d'alimentation au boîtier
@@ -24,11 +24,13 @@ Détecte les fichiers potentiellement dangereux (programmes Windows .exe, script
 
 ## "Vitrification?"
 Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros, JavaScript, objets malveillants). Les fichiers originaux sont déplacés dans le dossier "FICHIERS_POTENTIELLEMENT_DANGEREUX".
+
 **Formats traités :**
 - PDF (nettoyage)
 - Documents Office (.doc, .docx, .xls, .xlsx, .ppt, .pptx)
 - OpenOffice (.odt, .ods, .odp)
 - RTF
+
 **Résultats :**
 - Fichiers nettoyés : renommés en `nom_fichier.ext_vitrified_.pdf`
 - Fichiers originaux : déplacés dans `FICHIERS_POTENTIELLEMENT_DANGEREUX/`
@@ -36,14 +38,18 @@ Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros
 
 ## "Formatage USB?"
 Efface TOUTES les données et formate la clé USB en FAT32 (nom "CLEAN_USB").
+
 **⚠️ ATTENTION : Cette opération EFFACE DÉFINITIVEMENT toutes les données !**
+
 **Résultats possibles :**
 - 🟢 **VERT** = "Formatage OK! / CLEAN_USB" - Formatage réussi
 - 🔴 **ROUGE** = "ERREUR! / Disque systeme" - Protection activée (disque système)
 
 ## "Copie rapport?"
 Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours (analyses, détections, traitements).
+
 **Fichier créé :** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
+
 **Contenu du rapport :**
 - Informations détaillées sur la clé USB
 - Tous les traitements effectués
