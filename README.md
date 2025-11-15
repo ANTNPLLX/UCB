@@ -9,6 +9,10 @@ An interactive USB security scanning and cleaning system for Raspberry Pi with L
 Project created with the help of several LLM tools.
 ![sample_artwork](images/Sample_artwork_3.png)
 
+**[User quick guide (EN)](Documents/user_quick_start_en.md)**
+**[User quick guide (FR)](Documents/user_quick_start_fr.md)**
+
+
 ## Features
 
 - 🔌 **Plug & Play** - Auto-detects USB devices
