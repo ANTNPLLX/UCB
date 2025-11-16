@@ -34,11 +34,6 @@ Erases ALL data and formats the USB drive to FAT32 (label "CLEAN_USB").
 **⚠️ WARNING: This operation PERMANENTLY DELETES all data!**
 
 
-## "Copie rapport?"
-Creates a report file on the USB drive with all logs from the current session: detailed information about the USB drive, treatments performed, analysis results, detected or processed files.
-
-**File created:** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
-
 ## "Effacage secure?"
 Securely erases the USB drive by overwriting ALL data with random data with this command 'dd if=/dev/urandom of="$DEVICE_PATH" bs=4M'.
 This operation makes the data nearly impossible to recover.
@@ -47,6 +42,10 @@ Duration: approximately 50 minutes for a 64 GB drive
 **⚠️ CRITICAL WARNING:**
 - This operation PERMANENTLY DESTROYS all data
 
+## "Copie rapport?"
+Creates a report file on the USB drive with all logs from the current session: detailed information about the USB drive, treatments performed, analysis results, detected or processed files.
+
+**File created:** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
 
 ## "Recommencer?"
 After all treatments, the device offers to start over:

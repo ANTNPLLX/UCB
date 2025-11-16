@@ -33,11 +33,6 @@ Efface TOUTES les données et formate la clé USB en FAT32 (nom "CLEAN_USB").
 
 **⚠️ ATTENTION : Cette opération EFFACE DÉFINITIVEMENT toutes les données !**
 
-## "Copie rapport?"
-Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours : informations détaillées sur la clé USB, traitements effectués, résultats des analyses, fichiers détectés ou traités.
-
-**Fichier créé :** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
-
 ## "Effacage secure?"
 Efface les données de la clé USB en écrasant TOUTES les données avec des données aléatoires avec la commande 'dd if=/dev/urandom of="$DEVICE_PATH" bs=4M'.
 Cette opération rend les données presque impossibles à récupérer.
@@ -46,6 +41,10 @@ Durée : environ 10 minutes pour une clé de 4 Go
 **⚠️ ATTENTION CRITIQUE :**
 - Cette opération DÉTRUIT DÉFINITIVEMENT toutes les données
 
+## "Copie rapport?"
+Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours : informations détaillées sur la clé USB, traitements effectués, résultats des analyses, fichiers détectés ou traités.
+
+**Fichier créé :** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
 
 ## "Recommencer?"
 Après tous les traitements, le boîtier propose de recommancer depuis le début :
