@@ -48,15 +48,6 @@ Duration: approximately 50 minutes for a 64 GB drive
 - This operation PERMANENTLY DESTROYS all data
 
 
-## "Effacage secure?"
-Efface les données de la clé USB en écrasant TOUTES les données avec des données aléatoires avec la commande 'dd if=/dev/urandom of="$DEVICE_PATH" bs=4M'.
-Cette opération rend les données impossibles à récupérer.
-
-**⚠️ ATTENTION CRITIQUE :**
-- Cette opération DÉTRUIT DÉFINITIVEMENT toutes les données
-- Durée : environ 10 minutes pour une clé de 4 Go
-
-
 ## "Recommencer?"
 After all treatments, the device offers to start over:
 - **YES** - Restart the questions for the same USB drive
