@@ -108,10 +108,46 @@ This directory contains worker scripts that perform specific tasks on USB drives
 
 ---
 
-### 5. **report_printer.sh** (Order: 35)
+### 5. **secure_erase.sh** (Order: 40)
+**Question:** "Effacage secure?" / "Secure erase?"
+**Purpose:** Securely erases USB drive by overwriting with cryptographically random data
+**Enabled:** Configurable (default: enabled)
+
+**What it does:**
+- **Maximum security:** Overwrites entire drive with random data using `/dev/urandom`
+- **Safety checks:** Prevents erasing system/root disk and critical partitions
+- **Progress monitoring:** Displays real-time percentage during erase operation
+- Unmounts all partitions before erasing
+- Calculates estimated time based on device size
+- After secure erase: automatically formats to FAT32 with label "CLEAN_USB"
+
+**Technical Details:**
+- Uses `dd if=/dev/urandom of=/dev/sdX bs=4M status=progress`
+- Estimated speed: ~20 MB/s write speed
+- For 64GB USB: approximately 53 minutes
+- Makes data forensically unrecoverable
+
+**Requirements:** None
+
+**Output:**
+- 🟢 Green LED: Secure erase and format successful
+- 🔴 Red LED: Erase failed or blocked
+- LCD displays progress: "Effacement... XX%"
+
+**⚠️ CRITICAL WARNING:**
+- This operation PERMANENTLY DESTROYS all data on the USB drive
+- Data cannot be recovered after secure erase
+- Process can take significant time depending on drive size
+- Only use when maximum security is required (e.g., sensitive data removal)
+
+---
+
+### 6. **report_printer.sh** (Order: 35)
 **Question:** "Copie rapport?"
 **Purpose:** Creates a timestamped report file on the USB drive with current session logs
 **Enabled:** Configurable (default: enabled)
+
+**Note:** This worker has Order 35 to ensure it runs BEFORE secure erase (Order 40), allowing reports to be saved before drive is wiped
 
 **What it does:**
 - Mounts USB drive
@@ -140,7 +176,7 @@ This directory contains worker scripts that perform specific tasks on USB drives
 
 ---
 
-### 6. **TEMPLATE_worker.sh**
+### 7. **TEMPLATE_worker.sh**
 **Purpose:** Template for creating new custom workers
 **Enabled:** No (template only, not discovered)
 
@@ -289,10 +325,11 @@ Workers are executed in order based on `WORKER_ORDER`:
 1. **10** - Malware scan (detect threats first)
 2. **20** - Executable check (identify suspicious files)
 3. **25** - Vitrification (convert to safe formats)
-4. **30** - Format (nuclear option - wipes everything)
+4. **30** - Format (quick format - wipes partition table)
 5. **35** - Report printer (copy session logs to USB)
+6. **40** - Secure erase (maximum security - overwrites with random data)
 
-You can insert custom workers between these by using intermediate order numbers (e.g., 15, 22, 28, 32).
+You can insert custom workers between these by using intermediate order numbers (e.g., 15, 22, 28, 32, 37, 45).
 
 ---
 

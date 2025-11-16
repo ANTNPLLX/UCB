@@ -11,17 +11,17 @@
 # Configuration
 SCAN_LOG="/var/log/usb_malware_scan.log"
 
+# Get script directory
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# Source LCD helper for display_on_lcd function
+source "${SCRIPT_DIR}/lcd_helper.sh"
+
 # Color codes for terminal output
 GREEN='\033[0;32m'
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
-
-# Function to display on LCD (disabled - handled by main app)
-display_on_lcd() {
-    # LCD updates handled by main Python application
-    return 0
-}
 
 # Function to log with timestamp
 log_message() {
@@ -247,4 +247,3 @@ fi
 
 echo -e "${GREEN}=== Executable Analysis Complete ===${NC}"
 log_message "Executable file analysis completed for /dev/$DEVICE"
-echo "----------------------------------------" >> "$SCAN_LOG"

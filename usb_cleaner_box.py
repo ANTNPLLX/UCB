@@ -22,6 +22,7 @@ from button_input import ButtonInput
 from usb_detection import USBDetector
 from worker_manager import WorkerManager
 from log_helper import log_message, log_session_banner, log_worker_choice, log_separator
+from lcd_ipc import LCDIPCMonitor
 
 # Get script directory
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -43,6 +44,10 @@ class USBCleanerBox:
 
         # Initialize worker manager
         self.worker_manager = WorkerManager(WORKERS_DIR)
+
+        # Initialize LCD IPC monitor for worker communications
+        self.lcd_monitor = LCDIPCMonitor(self.lcd)
+        self.lcd_monitor.start()
 
         # State variables
         self.current_device = None
@@ -338,6 +343,11 @@ class USBCleanerBox:
     def cleanup(self):
         """Cleanup all resources"""
         print("Cleaning up...")
+        try:
+            self.lcd_monitor.stop()
+        except Exception as e:
+            print(f"Warning: LCD monitor cleanup error: {e}")
+
         try:
             self.leds.cleanup()
         except Exception as e:
