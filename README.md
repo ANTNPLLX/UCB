@@ -10,6 +10,7 @@
 **[User quick guide (FR)](Documents/user_quick_start_fr.md)**
 
 An interactive USB security scanning and cleaning system for Raspberry Pi with LCD display, LED indicators, button controls, and audio feedback.
+
 Project created with the help of several LLM tools.
 
 ![sample_artwork](images/Sample_artwork_3.png)
