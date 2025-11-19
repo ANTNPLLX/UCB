@@ -16,40 +16,14 @@ Pour chaque traitement disponible, l'écran affiche une question
 ---
 
 ### Explications des traitements
-## "Executable chk?"
-Détecte les fichiers potentiellement dangereux (programmes Windows .exe, scripts, binaires Linux).
 
-
-## "Vitrification?"
-Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros, JavaScript, objets malveillants). Les fichiers originaux sont déplacés dans le dossier "FICHIERS_POTENTIELLEMENT_DANGEREUX".
-
-**Résultats :**
-- Fichiers nettoyés : renommés en `nom_fichier.ext_vitrified_.pdf`
-- Fichiers originaux : déplacés dans `FICHIERS_POTENTIELLEMENT_DANGEREUX/`
-- Autres fichiers : renommés avec extension `.hold`
-
-## "Formatage USB?"
-Efface TOUTES les données et formate la clé USB en FAT32 (nom "CLEAN_USB").
-
-**⚠️ ATTENTION : Cette opération EFFACE DÉFINITIVEMENT toutes les données !**
-
-## "Effacage secure?"
-Efface les données de la clé USB en écrasant TOUTES les données avec des données aléatoires avec la commande 'dd if=/dev/urandom of="$DEVICE_PATH" bs=4M'.
-Cette opération rend les données presque impossibles à récupérer.
-Durée : environ 10 minutes pour une clé de 4 Go
-
-**⚠️ ATTENTION CRITIQUE :**
-- Cette opération DÉTRUIT DÉFINITIVEMENT toutes les données
-
-## "Copie rapport?"
-Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours : informations détaillées sur la clé USB, traitements effectués, résultats des analyses, fichiers détectés ou traités.
-
-**Fichier créé :** `YYYY-MM-DD_HH-MM_rapport_UCB.txt`
-
-## "Recommencer?"
-Après tous les traitements, le boîtier propose de recommancer depuis le début :
-- **OUI** - Relance les questions pour la même clé USB
-- **NON** - Passe au message de fin
+| Command | Description | Mise en garde |
+| --- | --- | --- | 
+| Executable chk? | Détecte les fichiers potentiellement dangereux (programmes Windows .exe, scripts, binaires Linux). |
+| Vitrification? | Convertit les documents Office et PDF en fichiers PDF nettoyés (supprime macros, JavaScript, objets malveillants). | Fichiers nettoyés : renommés en `nom_fichier.ext_vitrified_.pdf, Fichiers originaux : déplacés dans `FICHIERS_POTENTIELLEMENT_DANGEREUX/`, Autres fichiers : renommés avec extension `.hold` |
+| Formatage USB? | Formatage rapide de la clé USB en FAT32 (nom "CLEAN_USB"). | suppression de tous les fichiers 
+| Effacage secure? | Efface les données de la clé USB en écrasant TOUTES les données avec des données aléatoires avec la commande 'dd if=/dev/urandom of="$DEVICE_PATH" bs=4M'. Durée : environ 10 minutes pour une clé de 4 Go | Cette opération rend les données presque impossibles à récupérer.
+| Copie rapport?" | Crée un fichier rapport sur la clé USB avec tous les logs de la session en cours : informations détaillées sur la clé USB, traitements effectués, résultats des analyses, fichiers détectés ou traités.| Fichier créé à la racine de la clé : `YYYY-MM-DD_HH-MM_rapport_UCB.txt`|
 
 ---
 
